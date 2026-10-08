@@ -13,6 +13,9 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Source+Sans+3:wght@400;600;700&display=swap">
 <style>
 [hidden]{display:none!important}
+.cat.sel{border-color:var(--cc);box-shadow:inset 0 0 0 2px var(--cc)}
+.cat .n{margin-left:auto;min-width:28px;height:28px;padding:0 8px;border-radius:14px;display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:.9rem;background:var(--cc);color:#fff}
+.cat .n.zero{background:var(--surface-2,#eef1f5);color:var(--text-3,#8a94a6)}
 /* estilo.css · Central Dr. Antônio Penido */
 :root {
   --navy:        #0E2747;
@@ -354,6 +357,10 @@ html { scroll-behavior:smooth; }
 
   <!-- LISTA -->
   <div id="vLista" hidden>
+    <div style="margin-bottom:18px">
+      <p class="eyebrow">Demandas por tipo <span id="tipoLimpar" style="text-transform:none;letter-spacing:0;font-weight:600;color:var(--navy);cursor:pointer;margin-left:6px" hidden>· mostrar todas</span></p>
+      <div class="cats" id="cats"></div>
+    </div>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
       <div>
         <span id="ultimaAtualizacao" style="font-size:.75rem;color:var(--text-3)"></span>
@@ -701,7 +708,9 @@ function renderLista() {
     resolvidas:  d => d.status === "resolvida",
   };
 
-  const todos     = S.demandas.filter(grupo[S.tab] || (() => false));
+  const doGrupo   = S.demandas.filter(grupo[S.tab] || (() => false));
+  renderCats(doGrupo);
+  const todos     = S.tipo ? doGrupo.filter(d => d.tipo === S.tipo) : doGrupo;
   const filtrados = S.busca ? todos.filter(d => (d.nome||"").toLowerCase().includes(S.busca)) : todos;
 
   ["responder","respondidas","resolvidas"].forEach(tab => {
@@ -715,6 +724,7 @@ function renderLista() {
   if (!filtrados.length) {
     el.innerHTML = `<div class="empty">${
       S.busca ? "Nenhuma demanda encontrada." :
+      S.tipo ? "Nenhuma demanda deste tipo nesta aba." :
       S.tab === "responder" ? "Nenhuma demanda aguardando sua resposta." :
       S.tab === "respondidas" ? "Nenhuma demanda respondida." :
       "Nenhuma demanda resolvida ainda."
@@ -866,7 +876,7 @@ async function carregarCfg() {
     // A chave da equipe vem do servidor, já autenticado.
     // Nunca fica escrita neste arquivo, que é público.
     box.textContent = r.chaveEquipe
-      ? `${BASE}/#e=${r.chaveEquipe}`
+      ? `https://appenido.github.io/central/#e=${r.chaveEquipe}`
       : "Chave da equipe não configurada no servidor (variável CHAVE_EQUIPE).";
   } catch {
     box.textContent = "Não foi possível carregar o link agora.";
@@ -893,6 +903,32 @@ document.getElementById("btnSalvarCfg").addEventListener("click", async () => {
     toast("Configurações salvas!");
   } catch { toast("Erro ao salvar. Tente de novo."); }
 });
+</script>
+
+<script>
+// ── caixas por tipo: filtram a lista ─────────────────────────────────────────
+S.tipo = null;
+function renderCats(lista) {
+  lista = lista || [];
+  document.getElementById("cats").innerHTML = ORDEM.map(k => {
+    const t = TIPOS[k];
+    const n = lista.filter(d => d.tipo === k).length;
+    return `<button type="button" class="cat${k==="urgente"?" urg":""}${S.tipo===k?" sel":""}" data-tipo="${k}" style="--cc:${t.cor}">
+      <span class="ic">${IC[k]}</span>
+      <span style="min-width:0"><span class="t" style="display:block">${t.nome}</span><span class="d" style="display:block">${t.desc}</span></span>
+      <span class="n${n?"":" zero"}">${n}</span>
+    </button>`;
+  }).join("");
+  document.getElementById("tipoLimpar").hidden = !S.tipo;
+}
+document.getElementById("cats").addEventListener("click", e => {
+  const b = e.target.closest("[data-tipo]");
+  if (!b) return;
+  S.tipo = S.tipo === b.dataset.tipo ? null : b.dataset.tipo;
+  renderLista();
+});
+document.getElementById("tipoLimpar").addEventListener("click", () => { S.tipo = null; renderLista(); });
+renderCats([]);
 </script>
 </body>
 </html>
