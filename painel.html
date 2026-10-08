@@ -1,0 +1,898 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#0E2747">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Painel Dr. Penido">
+<title>Painel Dr. Antônio Penido</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Source+Sans+3:wght@400;600;700&display=swap">
+<style>
+[hidden]{display:none!important}
+/* estilo.css · Central Dr. Antônio Penido */
+:root {
+  --navy:        #0E2747;
+  --navy-dark:   #091a30;
+  --gold:        #A8813A;
+  --gold-soft:   #fdf5e6;
+  --surface:     #ffffff;
+  --surface-2:   #f4f6f9;
+  --surface-3:   #e8ecf2;
+  --text:        #1a2332;
+  --text-2:      #4a5568;
+  --text-3:      #718096;
+  --border:      #d0d8e4;
+  --ok:          #0e7a5e;
+  --warn:        #a87e0e;
+  --crit:        #c0392b;
+  --c-nova:      #1a5fa8;
+  --c-online:    #0e7a5e;
+  --c-presencial:#5a3fa8;
+  --radius:      12px;
+  --shadow:      0 2px 12px rgba(14,39,71,.10);
+  --shadow-lg:   0 4px 24px rgba(14,39,71,.16);
+}
+
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+html { font-size:16px; -webkit-text-size-adjust:100%; }
+body {
+  font-family:"Source Sans 3","Helvetica Neue",Arial,sans-serif;
+  color:var(--text);
+  background:var(--surface-2);
+  min-height:100dvh;
+  padding-bottom:env(safe-area-inset-bottom);
+}
+
+/* ── tipografia ── */
+h1 { font-family:"Cormorant Garamond",Georgia,serif; font-size:1.6rem; font-weight:700; line-height:1.2; color:var(--navy); }
+h2 { font-size:1rem; font-weight:700; color:var(--navy); }
+p  { line-height:1.5; }
+
+/* ── topo ── */
+.top {
+  background:var(--navy);
+  padding:12px 16px;
+  padding-top:calc(12px + env(safe-area-inset-top));
+  position:sticky; top:0; z-index:100;
+  box-shadow:0 2px 8px rgba(0,0,0,.2);
+}
+.top-in { display:flex; align-items:center; gap:10px; max-width:680px; margin:0 auto; }
+.brand  { display:flex; align-items:center; gap:10px; flex:1; }
+.brand-txt { display:flex; flex-direction:column; }
+.brand-name { font-family:"Cormorant Garamond",Georgia,serif; font-size:1.05rem; font-weight:700; color:#fff; line-height:1.1; }
+.brand-sub  { font-size:.72rem; color:rgba(255,255,255,.65); }
+.logo { flex-shrink:0; }
+.icon-btn {
+  background:none; border:none; color:rgba(255,255,255,.85); cursor:pointer;
+  padding:6px; border-radius:8px; display:flex; align-items:center; justify-content:center;
+  transition:background .15s;
+}
+.icon-btn:hover { background:rgba(255,255,255,.12); }
+
+/* ── main ── */
+main { max-width:680px; margin:0 auto; padding:20px 16px 40px; }
+
+/* ── hello ── */
+.hello { display:flex; align-items:flex-end; justify-content:space-between; gap:8px; }
+.date  { font-size:.8rem; color:var(--text-3); white-space:nowrap; padding-bottom:4px; }
+.eyebrow { font-size:.75rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--text-3); margin-bottom:10px; }
+
+/* ── categorias ── */
+.cats { display:flex; flex-direction:column; gap:8px; }
+.cat {
+  width:100%; display:flex; align-items:center; gap:12px;
+  background:var(--surface); border:1.5px solid var(--border);
+  border-radius:var(--radius); padding:14px 16px;
+  cursor:pointer; text-align:left; transition:box-shadow .15s,border-color .15s;
+  color:var(--text);
+}
+.cat:hover  { box-shadow:var(--shadow); border-color:var(--cc); }
+.cat.urg    { border-color:#e8b4b0; background:#fff5f5; }
+.cat .ic    { color:var(--cc); flex-shrink:0; }
+.cat .t     { font-weight:700; font-size:.95rem; }
+.cat .d     { font-size:.8rem; color:var(--text-3); margin-top:1px; }
+.badge      { margin-left:auto; background:var(--cc); color:#fff; border-radius:99px; padding:2px 8px; font-size:.75rem; font-weight:700; }
+
+/* ── row-head ── */
+.row-head { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:12px; }
+.seg { display:flex; background:var(--surface-3); border-radius:8px; padding:2px; gap:2px; }
+.seg button {
+  border:none; background:none; padding:5px 12px; border-radius:6px;
+  font-size:.8rem; font-weight:600; cursor:pointer; color:var(--text-2); transition:.15s;
+}
+.seg button[aria-pressed=true] { background:var(--surface); color:var(--navy); box-shadow:0 1px 4px rgba(0,0,0,.1); }
+
+/* ── abas (painel/secretária) ── */
+.tabs { display:flex; border-bottom:2px solid var(--border); margin-bottom:16px; gap:4px; }
+.tab-btn {
+  border:none; background:none; padding:10px 14px; font-size:.88rem; font-weight:600;
+  color:var(--text-3); cursor:pointer; border-bottom:2.5px solid transparent; margin-bottom:-2px;
+  transition:color .15s,border-color .15s; white-space:nowrap;
+}
+.tab-btn.ativa { color:var(--navy); border-bottom-color:var(--gold); }
+.tab-count { display:inline-flex; align-items:center; justify-content:center;
+  background:var(--navy); color:#fff; border-radius:99px;
+  font-size:.68rem; font-weight:700; min-width:18px; height:18px; padding:0 5px; margin-left:5px; vertical-align:middle; }
+.tab-count.zero { background:var(--border); color:var(--text-3); }
+
+/* ── busca ── */
+.busca-wrap { position:relative; margin-bottom:12px; }
+.busca-wrap svg { position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--text-3); pointer-events:none; }
+.busca { width:100%; padding:10px 12px 10px 38px; border:1.5px solid var(--border); border-radius:10px;
+  font-size:.95rem; background:var(--surface); color:var(--text); }
+.busca:focus { outline:none; border-color:var(--gold); }
+
+/* ── lista de demandas ── */
+.list { display:flex; flex-direction:column; gap:10px; }
+.empty { text-align:center; color:var(--text-3); padding:40px 20px; font-size:.95rem; }
+
+/* ── item de demanda ── */
+.item {
+  background:var(--surface); border:1.5px solid var(--border);
+  border-radius:var(--radius); padding:14px 16px;
+  border-left:4px solid var(--cc,var(--border));
+  box-shadow:var(--shadow);
+}
+.item-top { display:flex; justify-content:space-between; align-items:flex-start; gap:8px; margin-bottom:6px; }
+.item-name { font-weight:700; font-size:1rem; color:var(--navy); }
+.item-meta { font-size:.78rem; color:var(--text-3); margin-top:2px; }
+.item-text { font-size:.9rem; color:var(--text-2); margin-bottom:10px; white-space:pre-wrap; line-height:1.5; }
+.item-tel  { font-size:.82rem; color:var(--text-3); margin-bottom:8px; }
+.pills     { display:flex; flex-wrap:wrap; align-items:center; gap:6px; }
+.by        { font-size:.76rem; color:var(--text-3); }
+
+/* ── pills de status / perfil ── */
+.pill { display:inline-block; padding:3px 9px; border-radius:99px; font-size:.74rem; font-weight:700; white-space:nowrap; }
+.pill.s-nova      { background:#dbeafe; color:#1e40af; }
+.pill.s-vista     { background:#d1fae5; color:#065f46; }
+.pill.s-resolvida { background:#e9d5ff; color:#5b21b6; }
+.pill.s-comp      { background:var(--c-online); color:#fff; }
+.pill.p-tranquilo { background:#d1fae5; color:#065f46; }
+.pill.p-ansioso   { background:#fef3c7; color:#92400e; }
+.pill.p-extremo   { background:#fee2e2; color:#991b1b; }
+.tipo { font-size:.76rem; font-weight:700; }
+
+/* ── complemento / resposta (secretária) ── */
+.comp-toggle {
+  width:100%; background:none; border:1.5px dashed var(--border);
+  border-radius:8px; padding:8px 12px; text-align:left;
+  font-size:.85rem; font-weight:600; color:var(--text-2); cursor:pointer;
+  margin-top:10px; transition:border-color .15s,color .15s;
+}
+.comp-toggle:hover { border-color:var(--gold); color:var(--navy); }
+.comp-box { margin-top:8px; display:flex; flex-direction:column; gap:8px; }
+.comp-box textarea {
+  width:100%; padding:10px 12px; border:1.5px solid var(--border);
+  border-radius:8px; font-size:.9rem; resize:vertical; min-height:80px;
+  font-family:inherit; background:var(--surface); color:var(--text);
+}
+.comp-box textarea:focus { outline:none; border-color:var(--gold); }
+
+/* ── thread de conversa ── */
+.thread { display:flex; flex-direction:column; gap:8px; margin:10px 0; }
+.msg { max-width:88%; padding:10px 13px; border-radius:12px; }
+.msg-med {
+  background:var(--gold-soft); align-self:flex-start;
+  border-top-left-radius:4px; border:1px solid rgba(168,129,58,.2);
+}
+.msg-sec {
+  background:var(--surface-2); align-self:flex-end;
+  border-top-right-radius:4px; border:1px solid var(--border);
+}
+.msg-nome { font-size:.72rem; font-weight:700; color:var(--text-3); margin-bottom:4px; }
+.msg-txt  { font-size:.9rem; white-space:pre-wrap; line-height:1.5; color:var(--text); }
+.msg-hora { font-size:.7rem; color:var(--text-3); margin-top:4px; text-align:right; }
+
+/* ── badges de status no painel ── */
+.badge-novo-comp {
+  display:inline-flex; align-items:center; gap:5px;
+  background:#fee2e2; color:#991b1b; border-radius:99px;
+  font-size:.72rem; font-weight:700; padding:3px 9px;
+}
+
+/* ── formulário ── */
+.form-head { display:flex; align-items:center; gap:12px; padding:14px; background:var(--surface); border-radius:var(--radius); border-left:4px solid var(--cc,var(--gold)); box-shadow:var(--shadow); }
+.form-head .ic { color:var(--cc); }
+.form-head h1 { font-size:1.2rem; }
+.form-head p  { font-size:.85rem; color:var(--text-2); }
+
+.field { display:flex; flex-direction:column; gap:6px; }
+.field label, .lbl { font-size:.88rem; font-weight:700; color:var(--navy); }
+.hint { font-weight:400; color:var(--text-3); }
+.field input, .field textarea, .field select {
+  padding:11px 13px; border:1.5px solid var(--border); border-radius:10px;
+  font-size:.95rem; background:var(--surface); color:var(--text); font-family:inherit;
+  transition:border-color .15s;
+}
+.field input:focus, .field textarea:focus { outline:none; border-color:var(--gold); }
+.field textarea { min-height:100px; resize:vertical; line-height:1.5; }
+
+.perfis { display:flex; gap:8px; flex-wrap:wrap; }
+.perfil { flex:1; min-width:100px; }
+.perfil input { display:none; }
+.perfil span {
+  display:flex; flex-direction:column; align-items:center; gap:4px;
+  padding:10px 8px; border:2px solid var(--border); border-radius:10px;
+  cursor:pointer; text-align:center; font-size:.82rem; font-weight:600;
+  transition:.15s; position:relative;
+}
+.perfil input:checked + span { border-color:var(--pc); background:color-mix(in srgb,var(--pc) 10%,white); color:var(--pc); }
+.perfil span i { display:block; width:12px; height:12px; border-radius:50%; border:2px solid var(--border); }
+.perfil input:checked + span i { background:var(--pc); border-color:var(--pc); }
+
+/* ── botões ── */
+.btn {
+  display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  padding:12px 20px; border-radius:10px; font-size:.95rem; font-weight:700;
+  border:none; cursor:pointer; transition:.15s; font-family:inherit;
+}
+.btn-primary  { background:var(--navy); color:#fff; }
+.btn-primary:hover { background:var(--navy-dark); }
+.btn-primary:disabled { opacity:.5; cursor:not-allowed; }
+.btn-gold     { background:var(--gold); color:#fff; }
+.btn-gold:hover { filter:brightness(1.08); }
+.btn-ghost    { background:none; border:1.5px solid var(--border); color:var(--text-2); }
+.btn-ghost:hover { border-color:var(--navy); color:var(--navy); }
+.btn-danger   { background:#fee2e2; color:#991b1b; border:1.5px solid #fca5a5; }
+.btn-danger:hover { background:#fecaca; }
+.btn-sm       { padding:7px 13px; font-size:.82rem; border-radius:8px; }
+.btn-wide     { width:100%; }
+
+/* ── chips de resposta rápida ── */
+.chips { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px; }
+.chip {
+  border:1.5px solid var(--border); background:var(--surface);
+  border-radius:99px; padding:5px 13px; font-size:.8rem; font-weight:600;
+  cursor:pointer; color:var(--navy); transition:.15s;
+}
+.chip:hover { border-color:var(--gold); background:var(--gold-soft); }
+
+/* ── textarea de resposta ── */
+.resp-area {
+  width:100%; padding:11px 13px; border:1.5px solid var(--border); border-radius:10px;
+  font-size:.9rem; font-family:inherit; resize:vertical; min-height:90px;
+  background:var(--surface); color:var(--text); margin-bottom:10px;
+}
+.resp-area:focus { outline:none; border-color:var(--gold); }
+.resp-btns { display:flex; gap:8px; flex-wrap:wrap; }
+
+/* ── config / toggle ── */
+.config-section { background:var(--surface); border-radius:var(--radius); padding:16px; margin-bottom:12px; box-shadow:var(--shadow); }
+.config-section h3 { font-size:.88rem; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--text-3); margin-bottom:12px; }
+.toggle-row { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:8px 0; border-bottom:1px solid var(--border); }
+.toggle-row:last-child { border-bottom:none; }
+.toggle-row label { font-size:.9rem; color:var(--text); }
+.toggle { position:relative; display:inline-block; width:44px; height:24px; }
+.toggle input { opacity:0; width:0; height:0; }
+.slider {
+  position:absolute; inset:0; background:var(--border); border-radius:99px; cursor:pointer;
+  transition:.2s;
+}
+.slider::before {
+  content:""; position:absolute; width:18px; height:18px; border-radius:50%;
+  background:#fff; left:3px; top:3px; transition:.2s; box-shadow:0 1px 3px rgba(0,0,0,.2);
+}
+.toggle input:checked + .slider { background:var(--gold); }
+.toggle input:checked + .slider::before { transform:translateX(20px); }
+
+/* ── banner de aviso ── */
+.banner { padding:12px 14px; border-radius:10px; font-size:.88rem; line-height:1.5; }
+.banner.crit { background:#fee2e2; color:#7f1d1d; border:1px solid #fca5a5; }
+.banner.info { background:#dbeafe; color:#1e3a5f; border:1px solid #93c5fd; }
+
+/* ── acesso negado ── */
+.gate { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:60vh; gap:16px; text-align:center; padding:20px; }
+.gate h2 { color:var(--navy); }
+.gate p  { color:var(--text-2); font-size:.95rem; max-width:320px; }
+
+/* ── loading ── */
+.loading { text-align:center; padding:40px; color:var(--text-3); }
+.spinner { display:inline-block; width:28px; height:28px; border:3px solid var(--border); border-top-color:var(--navy); border-radius:50%; animation:spin .7s linear infinite; }
+@keyframes spin { to { transform:rotate(360deg); } }
+
+/* ── erro form ── */
+.err { padding:10px 12px; background:#fee2e2; color:#7f1d1d; border-radius:8px; font-size:.88rem; }
+
+/* ── toast ── */
+.toast {
+  position:fixed; bottom:calc(24px + env(safe-area-inset-bottom)); left:50%; transform:translateX(-50%) translateY(20px);
+  background:var(--navy); color:#fff; padding:11px 20px; border-radius:99px;
+  font-size:.88rem; font-weight:600; opacity:0; pointer-events:none;
+  transition:opacity .2s,transform .2s; z-index:9999; white-space:nowrap; max-width:90vw;
+}
+.toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+/* ── rodapé ── */
+.foot { text-align:center; font-size:.75rem; color:var(--text-3); padding-top:8px; }
+
+/* ── scroll suave ── */
+html { scroll-behavior:smooth; }
+
+/* ── responsivo ── */
+@media(min-width:480px){
+  .cats { display:grid; grid-template-columns:1fr 1fr; }
+  .cat.urg-wide { grid-column:1/-1; }
+}
+
+</style>
+<style>
+  .resp-wrap { margin-top:14px; border-top:1px solid var(--border); padding-top:14px; }
+  .resp-label { font-size:.8rem; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--text-3); margin-bottom:8px; }
+  .item-del-btn { background:none; border:none; color:var(--text-3); cursor:pointer; padding:4px 6px; border-radius:6px; font-size:.78rem; }
+  .item-del-btn:hover { color:var(--crit); background:#fee2e2; }
+  .tag-urgente { display:inline-block; background:#c0392b; color:#fff; padding:2px 8px; border-radius:99px; font-size:.72rem; font-weight:700; margin-left:6px; vertical-align:middle; }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="top-in">
+    <div class="logo" id="logoBox"></div>
+    <div class="brand-txt" style="flex:1">
+      <div class="brand-name">Dr. Antônio Penido</div>
+      <div class="brand-sub">Painel Exclusivo</div>
+    </div>
+    <button class="icon-btn" id="btnAtualizar" title="Atualizar" aria-label="Atualizar">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+    </button>
+    <button class="icon-btn" id="btnConfig" title="Configurações" aria-label="Configurações">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    </button>
+  </div>
+</header>
+
+<main>
+  <!-- GATE -->
+  <div id="vGate" class="gate" hidden>
+    <div class="logo" id="gateLogoBox"></div>
+    <h2>Acesso restrito</h2>
+    <p>Este link não é válido. Use o link exclusivo enviado pelo Dr. Antônio.</p>
+  </div>
+
+  <!-- LISTA -->
+  <div id="vLista" hidden>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+      <div>
+        <span id="ultimaAtualizacao" style="font-size:.75rem;color:var(--text-3)"></span>
+      </div>
+    </div>
+    <div class="busca-wrap">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input class="busca" id="busca" type="search" placeholder="Buscar por nome do paciente…" autocomplete="off">
+    </div>
+    <div class="tabs" id="tabs">
+      <button class="tab-btn ativa" data-tab="responder">A responder <span class="tab-count zero" id="cnt-responder">0</span></button>
+      <button class="tab-btn" data-tab="respondidas">Respondidas <span class="tab-count zero" id="cnt-respondidas">0</span></button>
+      <button class="tab-btn" data-tab="resolvidas">Resolvidas <span class="tab-count zero" id="cnt-resolvidas">0</span></button>
+    </div>
+    <div class="list" id="lista"></div>
+  </div>
+
+  <!-- CONFIG -->
+  <div id="vConfig" hidden>
+    <h1 style="margin-bottom:20px">Configurações</h1>
+    <div class="config-section">
+      <h3>Link da equipe</h3>
+      <p style="font-size:.88rem;color:var(--text-2);margin-bottom:10px">Compartilhe com as secretárias:</p>
+      <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:.82rem;word-break:break-all;color:var(--text-2)" id="linkEquipeBox">—</div>
+      <button class="btn btn-ghost btn-sm" style="margin-top:8px" id="btnCopiarLink">Copiar link</button>
+    </div>
+    <div class="config-section">
+      <h3>Alertas e notificações</h3>
+      <div class="toggle-row">
+        <label for="cWhats">WhatsApp Business</label>
+        <label class="toggle"><input type="checkbox" id="cWhats"><span class="slider"></span></label>
+      </div>
+      <div class="toggle-row">
+        <label for="cEmail">E-mail</label>
+        <label class="toggle"><input type="checkbox" id="cEmail"><span class="slider"></span></label>
+      </div>
+      <div class="toggle-row">
+        <label for="cSms">SMS</label>
+        <label class="toggle"><input type="checkbox" id="cSms"><span class="slider"></span></label>
+      </div>
+    </div>
+    <div class="config-section">
+      <h3>Contato para alertas</h3>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div class="field">
+          <label for="cfgTel">Telefone / WhatsApp</label>
+          <input id="cfgTel" type="tel" inputmode="tel" placeholder="(31) 9 9999-9999">
+        </div>
+        <div class="field">
+          <label for="cfgEmail">E-mail</label>
+          <input id="cfgEmail" type="email" inputmode="email" placeholder="seuemail@exemplo.com">
+        </div>
+      </div>
+    </div>
+    <button class="btn btn-primary btn-wide" id="btnSalvarCfg">Salvar configurações</button>
+    <button class="btn btn-ghost btn-wide" style="margin-top:8px" id="btnVoltarCfg">Voltar às demandas</button>
+  </div>
+</main>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+// comum.js · Central Dr. Antônio Penido
+// Constantes, helpers e funções compartilhadas entre as páginas
+
+const TZ = "America/Sao_Paulo";
+
+const TIPOS = {
+  novo:      { nome:"Novo atendimento",      desc:"Paciente que nunca foi atendido",       cor:"#1a5fa8" },
+  online:    { nome:"Retorno online",        desc:"Retorno por vídeo ou ligação", cor:"#0e7a5e" },
+  presencial:{ nome:"Retorno presencial",    desc:"Retorno no consultório",           cor:"#5a3fa8" },
+  duvidas:   { nome:"Dúvidas",          desc:"Dúvida sobre tratamento ou exame", cor:"#a87e0e" },
+  urgente:   { nome:"Urgente",              desc:"Situação que não pode esperar", cor:"#c0392b" },
+};
+const ORDEM  = ["novo","online","presencial","duvidas","urgente"];
+const PERFIS = { tranquilo:"Tranquilo", ansioso:"Ansioso", extremo:"Ansioso ao extremo" };
+const PESO   = { tranquilo:0, ansioso:1, extremo:2 };
+const STATUS = { nova:"Aguardando", vista:"Respondida", resolvida:"Resolvida" };
+
+// ── SVGs ─────────────────────────────────────────────────────────────────────
+
+const MONO = `<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="40" height="40" rx="8" fill="#0E2747"/>
+<path d="M10 28 L20 12 L30 28" stroke="#A8813A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+<path d="M14 22 L26 22" stroke="#A8813A" stroke-width="2" stroke-linecap="round"/>
+</svg>`;
+
+const IC = {
+  novo:       `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>`,
+  online:     `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="15" rx="2"/><polyline points="17 2 12 7 7 2"/></svg>`,
+  presencial: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`,
+  duvidas:    `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`,
+  urgente:    `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`,
+};
+
+// ── localStorage wrapper ──────────────────────────────────────────────────────
+
+const LS = {
+  get(k, def) { try { const v = localStorage.getItem(k); return v === null ? def : JSON.parse(v); } catch { return def; } },
+  set(k, v)   { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
+  del(k)      { try { localStorage.removeItem(k); } catch {} },
+};
+
+// ── seletor helper ────────────────────────────────────────────────────────────
+
+function $(sel, ctx) { return (ctx || document).querySelector(sel); }
+
+// ── datas e horas ─────────────────────────────────────────────────────────────
+
+function partsSP(d) {
+  const f = new Intl.DateTimeFormat("pt-BR", {
+    timeZone: TZ,
+    year: "numeric", month: "2-digit", day: "2-digit",
+    hour: "2-digit", minute: "2-digit",
+  });
+  const p = Object.fromEntries(f.formatToParts(d).filter(x => x.type !== "literal").map(x => [x.type, x.value]));
+  return p; // { year, month, day, hour, minute }
+}
+function hojeISO() {
+  const p = partsSP(new Date());
+  return `${p.year}-${p.month}-${p.day}`;
+}
+function hojeExtenso() {
+  return new Date().toLocaleDateString("pt-BR", { timeZone: TZ, weekday:"long", day:"numeric", month:"long" });
+}
+function saudacao() {
+  const h = parseInt(partsSP(new Date()).hour, 10);
+  return h < 12 ? "Bom dia" : h < 18 ? "Boa tarde" : "Boa noite";
+}
+function br(iso) {
+  if (!iso) return "";
+  const [y, m, d] = iso.split("-");
+  return `${d}/${m}/${y}`;
+}
+function quando(iso) {
+  if (!iso) return "";
+  try {
+    const d = new Date(iso);
+    const p = partsSP(d);
+    const hoje = hojeISO();
+    const dStr = `${p.year}-${p.month}-${p.day}`;
+    if (dStr === hoje) return `hoje às ${p.hour}:${p.minute}`;
+    const ontem = new Date(); ontem.setDate(ontem.getDate() - 1);
+    const po = partsSP(ontem);
+    if (dStr === `${po.year}-${po.month}-${po.day}`) return `ontem às ${p.hour}:${p.minute}`;
+    return `${p.day}/${p.month} às ${p.hour}:${p.minute}`;
+  } catch { return ""; }
+}
+
+// ── escape HTML ───────────────────────────────────────────────────────────────
+
+function esc(s) {
+  return String(s ?? "")
+    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+}
+
+// ── toast ─────────────────────────────────────────────────────────────────────
+
+let _toastTm;
+function toast(msg, dur = 3500) {
+  const el = document.getElementById("toast");
+  if (!el) return;
+  el.textContent = msg;
+  el.classList.add("show");
+  clearTimeout(_toastTm);
+  _toastTm = setTimeout(() => el.classList.remove("show"), dur);
+}
+
+// ── navegação History API ─────────────────────────────────────────────────────
+
+function criarNavegacao(views, paiMap, aoMudar) {
+  // views: [["idDaView","nomeEstado"], ...]
+  // paiMap: {"filho":"pai"} — ao clicar voltar no browser
+  const ids = views.map(([id]) => id);
+  let atual = null;
+
+  function mostrar(id) {
+    ids.forEach(i => {
+      const el = document.getElementById(i);
+      if (el) el.hidden = (i !== id);
+    });
+    atual = id;
+    if (aoMudar) aoMudar(id);
+  }
+
+  function go(estado, push = true) {
+    const view = views.find(([, s]) => s === estado || s === estado);
+    const id = view ? view[0] : ids.find(i => i === estado) || ids[0];
+    if (push) history.pushState({ id }, "", location.pathname + location.search);
+    mostrar(id);
+  }
+
+  function voltar() {
+    const pai = paiMap[atual];
+    if (pai) go(pai);
+    else history.back();
+  }
+
+  window.addEventListener("popstate", e => {
+    const id = e.state?.id;
+    if (id && ids.includes(id)) mostrar(id);
+  });
+
+  return {
+    get atual() { return atual; },
+    go,
+    voltar,
+  };
+}
+
+// ── API helper ────────────────────────────────────────────────────────────────
+
+const API = {
+  async req(caminho, { method = "GET", body, token, equipe } = {}) {
+    const headers = { "Content-Type": "application/json" };
+    if (token)  headers["Authorization"] = `Bearer ${token}`;
+    if (equipe) headers["X-Equipe"] = equipe;
+    const opts = { method, headers };
+    if (body) opts.body = JSON.stringify(body);
+    const r = await fetch(caminho, opts);
+    const ct = r.headers.get("content-type") || "";
+    const data = ct.includes("json") ? await r.json() : { _txt: await r.text() };
+    if (!r.ok) throw Object.assign(new Error(data.erro || "Erro " + r.status), { status: r.status, data });
+    return data;
+  },
+};
+
+// ── thread de conversa ────────────────────────────────────────────────────────
+
+function conversaHTML(d) {
+  const msgs = d.mensagens || [];
+  if (!msgs.length) return "";
+  return `<div class="thread">${msgs.map(m => {
+    const lado = m.autor === "medico" ? "msg-med" : "msg-sec";
+    return `<div class="msg ${lado}">
+      <div class="msg-nome">${esc(m.nome || (m.autor === "medico" ? "Dr. Antônio" : "Secretária"))}</div>
+      <div class="msg-txt">${esc(m.texto)}</div>
+      <div class="msg-hora">${quando(m.em)}</div>
+    </div>`;
+  }).join("")}</div>`;
+}
+
+</script>
+<script>
+const BASE="https://jpdtqtenlivxgjkyizcg.supabase.co/functions/v1/central";
+// ── estado ────────────────────────────────────────────────────────────────────
+const S = {
+  token: null,
+  demandas: [],
+  tab: "responder",
+  busca: "",
+  cfg: {},
+  carregando: false,
+  view: "lista", // "lista" | "config"
+};
+
+const CHIPS = [
+  "Retorno marcado com a secretária.",
+  "Já analisei. Pode tomar normalmente.",
+  "Aguarde, entrarei em contato em breve.",
+  "Por favor, ligue para o consultório.",
+  "Vamos manter o tratamento atual.",
+  "Encaminharei a receita em breve.",
+];
+
+// ── autenticação ──────────────────────────────────────────────────────────────
+(function init() {
+  const hash = location.hash;
+  const m = hash.match(/[#&]k=([^&]+)/);
+  if (m) {
+    LS.set("central.chave", m[1]);
+    history.replaceState(null, "", location.pathname + location.search);
+  }
+  S.token = LS.get("central.chave", null);
+
+  document.getElementById("logoBox").innerHTML = MONO;
+  document.getElementById("gateLogoBox").innerHTML = MONO;
+
+  if (!S.token) { mostrarGate(); return; }
+
+  API.req(BASE+"/api/painel/verificar", { token: S.token })
+    .then(r => {
+      if (!r.ok) { mostrarGate(); return; }
+      mostrarLista();
+      carregarDemandas();
+    })
+    .catch(() => { mostrarLista(); carregarDemandas(); });
+})();
+
+function mostrarGate()  { setView("gate"); }
+function mostrarLista() { setView("lista"); }
+function mostrarConfig(){ setView("config"); carregarCfg(); }
+
+function setView(v) {
+  S.view = v;
+  document.getElementById("vGate").hidden   = v !== "gate";
+  document.getElementById("vLista").hidden  = v !== "lista";
+  document.getElementById("vConfig").hidden = v !== "config";
+}
+
+// ── eventos de topo ───────────────────────────────────────────────────────────
+document.getElementById("btnAtualizar").addEventListener("click", carregarDemandas);
+document.getElementById("btnConfig").addEventListener("click", mostrarConfig);
+document.getElementById("btnVoltarCfg").addEventListener("click", mostrarLista);
+
+// ── abas ──────────────────────────────────────────────────────────────────────
+document.getElementById("tabs").addEventListener("click", e => {
+  const b = e.target.closest("[data-tab]");
+  if (!b) return;
+  S.tab = b.dataset.tab;
+  document.querySelectorAll(".tab-btn").forEach(x => x.classList.toggle("ativa", x.dataset.tab === S.tab));
+  renderLista();
+});
+
+// ── busca ─────────────────────────────────────────────────────────────────────
+document.getElementById("busca").addEventListener("input", e => {
+  S.busca = e.target.value.toLowerCase();
+  renderLista();
+});
+
+// ── carregar demandas ─────────────────────────────────────────────────────────
+async function carregarDemandas() {
+  if (S.carregando) return;
+  S.carregando = true;
+  document.getElementById("lista").innerHTML = `<div class="loading"><div class="spinner"></div></div>`;
+  try {
+    const r = await API.req(BASE+"/api/painel/demandas", { token: S.token });
+    S.demandas = r.demandas || [];
+    const agora = new Date().toLocaleTimeString("pt-BR",{timeZone:TZ,hour:"2-digit",minute:"2-digit"});
+    document.getElementById("ultimaAtualizacao").textContent = `atualizado às ${agora}`;
+    renderLista();
+  } catch {
+    document.getElementById("lista").innerHTML = `<div class="empty">Erro ao carregar. <button class="btn btn-ghost btn-sm" onclick="carregarDemandas()">Tentar novamente</button></div>`;
+  } finally {
+    S.carregando = false;
+  }
+}
+
+// ── renderizar lista ──────────────────────────────────────────────────────────
+function renderLista() {
+  const grupo = {
+    responder:   d => d.status !== "resolvida" && (d.aguardando_medico || d.status === "nova"),
+    respondidas: d => d.status === "vista" && !d.aguardando_medico,
+    resolvidas:  d => d.status === "resolvida",
+  };
+
+  const todos     = S.demandas.filter(grupo[S.tab] || (() => false));
+  const filtrados = S.busca ? todos.filter(d => (d.nome||"").toLowerCase().includes(S.busca)) : todos;
+
+  ["responder","respondidas","resolvidas"].forEach(tab => {
+    const n = S.demandas.filter(grupo[tab] || (() => false)).length;
+    const el = document.getElementById(`cnt-${tab}`);
+    el.textContent = n;
+    el.className = `tab-count${n === 0 ? " zero" : ""}`;
+  });
+
+  const el = document.getElementById("lista");
+  if (!filtrados.length) {
+    el.innerHTML = `<div class="empty">${
+      S.busca ? "Nenhuma demanda encontrada." :
+      S.tab === "responder" ? "Nenhuma demanda aguardando sua resposta." :
+      S.tab === "respondidas" ? "Nenhuma demanda respondida." :
+      "Nenhuma demanda resolvida ainda."
+    }</div>`;
+    return;
+  }
+
+  // ordena: urgentes primeiro, depois mais recentes
+  filtrados.sort((a,b) => {
+    const ua = a.tipo==="urgente"?1:0, ub = b.tipo==="urgente"?1:0;
+    if (ua!==ub) return ub-ua;
+    return (b.criado_em||"") > (a.criado_em||"") ? 1 : -1;
+  });
+
+  el.innerHTML = filtrados.map(d => itemHTML(d)).join("");
+
+  // eventos de resposta
+  el.querySelectorAll("[data-chip]").forEach(chip => {
+    chip.addEventListener("click", () => {
+      const id = chip.closest("[data-item-id]")?.dataset.itemId;
+      if (!id) return;
+      const ta = document.getElementById(`resp-${id}`);
+      if (ta) ta.value = chip.dataset.chip;
+    });
+  });
+
+  el.querySelectorAll("[data-responder]").forEach(btn => {
+    btn.addEventListener("click", () => responder(btn.dataset.responder, false));
+  });
+  el.querySelectorAll("[data-resolver]").forEach(btn => {
+    btn.addEventListener("click", () => responder(btn.dataset.resolver, true));
+  });
+  el.querySelectorAll("[data-deletar]").forEach(btn => {
+    btn.addEventListener("click", () => deletar(btn.dataset.deletar));
+  });
+  el.querySelectorAll("[data-reabrir]").forEach(btn => {
+    btn.addEventListener("click", () => reabrir(btn.dataset.reabrir));
+  });
+}
+
+function itemHTML(d) {
+  const t = TIPOS[d.tipo] || TIPOS.duvidas;
+  const msgs = d.mensagens || [];
+  const novoComp = d.aguardando_medico && msgs.length > 0;
+  const podeResponder = d.status !== "resolvida";
+
+  return `<article class="item" data-item-id="${esc(d.id)}" style="--cc:${t.cor}">
+    <div class="item-top">
+      <div style="min-width:0">
+        <div class="item-name">
+          ${esc(d.nome)}
+          ${d.tipo==="urgente" ? `<span class="tag-urgente">URGENTE</span>` : ""}
+        </div>
+        <div class="item-meta"><span class="tipo">${t.nome}</span> · ${br(d.data_solicitacao)}</div>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:6px">
+        <span class="pill p-${esc(d.perfil)}">${PERFIS[d.perfil]||""}</span>
+        <button class="item-del-btn" data-deletar="${esc(d.id)}" title="Excluir demanda" aria-label="Excluir">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="item-text">${esc(d.demanda)}</div>
+    ${d.telefone ? `<div class="item-tel">📞 ${esc(d.telefone)}</div>` : ""}
+
+    <div class="pills">
+      <span class="pill s-${esc(d.status)}">${STATUS[d.status]||d.status}</span>
+      ${novoComp ? `<span class="badge-novo-comp">💬 Complemento da secretária</span>` : ""}
+      <span class="by">${quando(d.criado_em)}${d.secretaria ? ` · ${esc(d.secretaria)}` : ""}</span>
+    </div>
+
+    ${conversaHTML(d)}
+
+    ${podeResponder ? `
+    <div class="resp-wrap">
+      <div class="resp-label">Sua resposta</div>
+      <div class="chips">
+        ${CHIPS.map(c => `<button class="chip" data-chip="${esc(c)}">${esc(c)}</button>`).join("")}
+      </div>
+      <textarea class="resp-area" id="resp-${esc(d.id)}" placeholder="Escreva sua resposta ao paciente…"></textarea>
+      <div class="resp-btns">
+        <button class="btn btn-gold btn-sm" data-responder="${esc(d.id)}">Enviar resposta</button>
+        <button class="btn btn-primary btn-sm" data-resolver="${esc(d.id)}">Enviar e marcar resolvida</button>
+      </div>
+    </div>` : `
+    <div style="margin-top:10px">
+      <button class="btn btn-ghost btn-sm" data-reabrir="${esc(d.id)}">Reabrir demanda</button>
+    </div>`}
+  </article>`;
+}
+
+// ── ações ─────────────────────────────────────────────────────────────────────
+async function responder(id, resolver) {
+  const ta = document.getElementById(`resp-${id}`);
+  const texto = ta?.value.trim() || "";
+  if (!texto) { toast("Escreva uma resposta antes de enviar."); return; }
+
+  const btn = resolver
+    ? document.querySelector(`[data-resolver="${id}"]`)
+    : document.querySelector(`[data-responder="${id}"]`);
+  if (btn) { btn.disabled = true; btn.textContent = "Enviando…"; }
+  try {
+    await API.req(BASE+`/api/painel/demandas/${id}/mensagem`, {
+      method: "POST", token: S.token,
+      body: { texto, resolver },
+    });
+    toast(resolver ? "Resposta enviada e demanda resolvida!" : "Resposta enviada!");
+    await carregarDemandas();
+  } catch {
+    toast("Erro ao enviar. Tente de novo.");
+    if (btn) { btn.disabled = false; btn.textContent = resolver ? "Enviar e marcar resolvida" : "Enviar resposta"; }
+  }
+}
+
+async function deletar(id) {
+  if (!confirm("Excluir esta demanda permanentemente?")) return;
+  try {
+    await API.req(BASE+`/api/painel/demandas/${id}`, { method: "DELETE", token: S.token });
+    toast("Demanda excluída.");
+    S.demandas = S.demandas.filter(d => d.id !== id);
+    renderLista();
+  } catch { toast("Erro ao excluir. Tente de novo."); }
+}
+
+async function reabrir(id) {
+  try {
+    await API.req(BASE+`/api/painel/demandas/${id}`, {
+      method: "PATCH", token: S.token, body: { status: "nova" },
+    });
+    toast("Demanda reaberta.");
+    await carregarDemandas();
+  } catch { toast("Erro ao reabrir."); }
+}
+
+// ── config ────────────────────────────────────────────────────────────────────
+async function carregarCfg() {
+  const box = document.getElementById("linkEquipeBox");
+  box.textContent = "carregando…";
+  try {
+    const r = await API.req(BASE+"/api/painel/config", { token: S.token });
+    S.cfg = r;
+    document.getElementById("cWhats").checked  = !!r.whats;
+    document.getElementById("cEmail").checked  = !!r.email;
+    document.getElementById("cSms").checked    = !!r.sms;
+    document.getElementById("cfgTel").value    = r.tel || "";
+    document.getElementById("cfgEmail").value  = r.emailContato || "";
+
+    // A chave da equipe vem do servidor, já autenticado.
+    // Nunca fica escrita neste arquivo, que é público.
+    box.textContent = r.chaveEquipe
+      ? `${BASE}/#e=${r.chaveEquipe}`
+      : "Chave da equipe não configurada no servidor (variável CHAVE_EQUIPE).";
+  } catch {
+    box.textContent = "Não foi possível carregar o link agora.";
+  }
+}
+
+document.getElementById("btnCopiarLink").addEventListener("click", async () => {
+  const txt = document.getElementById("linkEquipeBox").textContent;
+  try { await navigator.clipboard.writeText(txt); toast("Link copiado!"); }
+  catch { toast("Não foi possível copiar. Copie manualmente."); }
+});
+
+document.getElementById("btnSalvarCfg").addEventListener("click", async () => {
+  const cfg = {
+    whats: document.getElementById("cWhats").checked,
+    email: document.getElementById("cEmail").checked,
+    sms:   document.getElementById("cSms").checked,
+    tel:   document.getElementById("cfgTel").value.trim(),
+    emailContato: document.getElementById("cfgEmail").value.trim(),
+  };
+  try {
+    await API.req(BASE+"/api/painel/config", { method: "PUT", token: S.token, body: cfg });
+    S.cfg = cfg;
+    toast("Configurações salvas!");
+  } catch { toast("Erro ao salvar. Tente de novo."); }
+});
+</script>
+</body>
+</html>
