@@ -13,6 +13,14 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Source+Sans+3:wght@400;600;700&display=swap">
 <style>
 [hidden]{display:none!important}
+.anexos{display:flex;flex-direction:column;gap:6px;margin:10px 0}
+.anexo{display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--border);border-radius:10px;background:var(--surface-2,#f6f8fb)}
+.anexo .an-nome{flex:1;min-width:0;font-size:.88rem;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.anexo .an-info{font-size:.75rem;color:var(--text-3)}
+.anexo button{border:0;background:none;cursor:pointer;font-weight:700;font-size:.82rem;color:var(--navy);padding:4px 6px}
+.anexo button.rm{color:#c0392b}
+.btn-anexar{margin-top:8px}
+
 .cat.sel{border-color:var(--cc);box-shadow:inset 0 0 0 2px var(--cc)}
 .cat .n{margin-left:auto;min-width:28px;height:28px;padding:0 8px;border-radius:14px;display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:.9rem;background:var(--cc);color:#fff}
 .cat .n.zero{background:var(--surface-2,#eef1f5);color:var(--text-3,#8a94a6)}
@@ -798,6 +806,7 @@ function itemHTML(d) {
     </div>
 
     ${conversaHTML(d)}
+    ${anexosHTML(d, true)}
 
     ${podeResponder ? `
     <div class="resp-wrap">
@@ -929,6 +938,79 @@ document.getElementById("cats").addEventListener("click", e => {
 });
 document.getElementById("tipoLimpar").addEventListener("click", () => { S.tipo = null; renderLista(); });
 renderCats([]);
+</script>
+
+<script>
+// ── anexar e remover relatórios (painel do médico) ───────────────────────────
+const AUTH = { medico: true, opts(){ return { token: S.token }; } };
+const fileIn = document.createElement("input");
+fileIn.type = "file"; fileIn.hidden = true;
+fileIn.accept = ".pdf,.doc,.docx,.jpg,.jpeg,.png,.heic,.xls,.xlsx,.txt";
+document.body.appendChild(fileIn);
+let anexarId = null, anexarBtn = null;
+document.addEventListener("click", e => {
+  const a = e.target.closest("[data-anexar]");
+  if (a) { anexarId = a.dataset.anexar; anexarBtn = a; fileIn.value = ""; fileIn.click(); return; }
+  const r = e.target.closest("[data-remover-anexo]");
+  if (r) removerAnexo(r.dataset.id, r.dataset.removerAnexo);
+});
+fileIn.addEventListener("change", async () => {
+  const f = fileIn.files && fileIn.files[0];
+  if (!f || !anexarId) return;
+  if (f.size > 10*1024*1024) { toast("Arquivo maior que 10 MB."); return; }
+  const btn = anexarBtn; const txt = btn.textContent; btn.textContent = "Enviando…"; btn.disabled = true;
+  try {
+    const dados = await new Promise((ok, no) => {
+      const rd = new FileReader();
+      rd.onload = () => ok(String(rd.result).split(",")[1] || "");
+      rd.onerror = no; rd.readAsDataURL(f);
+    });
+    await API.req(BASE+"/api/painel/demandas/"+encodeURIComponent(anexarId)+"/anexo", {
+      method: "POST", token: S.token, body: { nome: f.name, tipo: f.type || "", dados },
+    });
+    toast("Relatório anexado. As secretárias já podem baixar.");
+    await carregarDemandas();
+  } catch(err) {
+    toast(err.status === 413 ? "Arquivo maior que 10 MB." : "Erro ao anexar. Tente de novo.");
+  } finally { btn.textContent = txt; btn.disabled = false; }
+});
+async function removerAnexo(id, path){
+  if (!confirm("Remover este anexo?")) return;
+  try {
+    await API.req(BASE+"/api/painel/demandas/"+encodeURIComponent(id)+"/anexo?path="+encodeURIComponent(path), { method: "DELETE", token: S.token });
+    toast("Anexo removido."); await carregarDemandas();
+  } catch { toast("Erro ao remover. Tente de novo."); }
+}
+</script>
+
+<script>
+// ── anexos (relatórios) ──────────────────────────────────────────────────────
+function tamanhoTxt(b){ if(!b&&b!==0) return ""; if(b<1024) return b+" B"; if(b<1048576) return (b/1024).toFixed(0)+" KB"; return (b/1048576).toFixed(1)+" MB"; }
+function anexosHTML(d, medico){
+  const lista = d.anexos || [];
+  const itens = lista.map(a => `<div class="anexo">
+      <span aria-hidden="true">📎</span>
+      <span class="an-nome" title="${esc(a.nome)}">${esc(a.nome)}<br><span class="an-info">${tamanhoTxt(a.tamanho)}${a.em?` · ${quando(a.em)}`:""}</span></span>
+      <button type="button" data-baixar="${esc(a.path)}" data-id="${esc(d.id)}">Baixar</button>
+      ${medico?`<button type="button" class="rm" data-remover-anexo="${esc(a.path)}" data-id="${esc(d.id)}">Remover</button>`:""}
+    </div>`).join("");
+  const bloco = lista.length ? `<div class="anexos">${itens}</div>` : "";
+  const botao = medico ? `<button type="button" class="btn btn-ghost btn-sm btn-anexar" data-anexar="${esc(d.id)}">📎 Anexar relatório</button>` : "";
+  return bloco + botao;
+}
+async function baixarAnexo(id, path, btn){
+  const txt = btn.textContent; btn.textContent = "Abrindo…"; btn.disabled = true;
+  try {
+    const rota = AUTH.medico ? "/api/painel/anexo" : "/api/equipe/anexo";
+    const r = await API.req(BASE+rota+"?id="+encodeURIComponent(id)+"&path="+encodeURIComponent(path), AUTH.opts());
+    window.open(r.url, "_blank") || (location.href = r.url);
+  } catch { toast("Não foi possível baixar o arquivo. Tente de novo."); }
+  finally { btn.textContent = txt; btn.disabled = false; }
+}
+document.addEventListener("click", e => {
+  const b = e.target.closest("[data-baixar]");
+  if (b) baixarAnexo(b.dataset.id, b.dataset.baixar, b);
+});
 </script>
 </body>
 </html>
