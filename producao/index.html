@@ -469,7 +469,6 @@ function renderLogin(msg){
   S.ctx = null;
   $('#app').innerHTML = cardAuth(`
     <h1>Produção e Repasse Médico</h1>
-    <p class="sub">Acesso dos médicos e da coordenação</p>
     ${avisoHtml(msg)}
     <form id="f-login" class="form" novalidate>
       <label>E-mail<input type="email" name="email" autocomplete="username" inputmode="email" required></label>
