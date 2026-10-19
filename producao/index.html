@@ -469,6 +469,7 @@ function renderLogin(msg){
   S.ctx = null;
   $('#app').innerHTML = cardAuth(`
     <h1>Produção e Repasse Médico</h1>
+    <p class="sub">Acesso dos médicos e da coordenação</p>
     ${avisoHtml(msg)}
     <form id="f-login" class="form" novalidate>
       <label>E-mail<input type="email" name="email" autocomplete="username" inputmode="email" required></label>
@@ -916,7 +917,7 @@ function atualizarValor(){
   f.preview = { carregando:true }; box();
   clearTimeout(tPrev);
   tPrev = setTimeout(async () => {
-    try { const x = await rpc('previsualizar_lancamento', payloadLanc()); if (S.form !== f) return; f.preview = x.status === 'valido' ? { status:'valido', repasse:Number(x.repasse), detalhe:`${pct(x.regra && x.regra.percentual)} do valor-base do medicamento` } : { status:'pendente', texto:x.motivo }; }
+    try { const x = await rpc('previsualizar_lancamento', { p: payloadLanc() }); if (S.form !== f) return; f.preview = x.status === 'valido' ? { status:'valido', repasse:Number(x.repasse), detalhe:`${pct(x.regra && x.regra.percentual)} do valor-base do medicamento` } : { status:'pendente', texto:x.motivo }; }
     catch (e) { if (S.form !== f) return; f.preview = { status:'pendente', texto:e.message }; }
     box();
   }, 300);
@@ -942,7 +943,7 @@ async function salvarLanc(mais){
     }
     const pl = payloadLanc();
     if (f.dup) { const j = ($('#fl-just') ? $('#fl-just').value : '').trim(); if (j.length < 5) { toast('Escreva a justificativa (mín. 5 caracteres) para confirmar.', true); return; } pl.confirmar_duplicidade = true; pl.justificativa = j; }
-    const r = await rpc('registrar_lancamento', pl);
+    const r = await rpc('registrar_lancamento', { p: pl });
     if (r.duplicado) { f.dup = r; $('#fl-dup').innerHTML = htmlDup(); const b = $('#fl-salvar'); if (b) b.dataset.txt = 'Confirmar registro mesmo assim'; setTimeout(() => $('#fl-just') && $('#fl-just').focus(), 50); return; }
     toast(!f.coord ? `Registrado: ${r.procedimento_nome} — ${pl.paciente_nome}` : r.status === 'valido' ? `Registrado: ${r.procedimento_nome} · ${brl(r.repasse)}` : `Registrado como pendente de precificação: ${r.procedimento_nome}`);
     const combo = mais ? { pacienteNome: pl.paciente_nome, prontuario: pl.prontuario, convId: f.convId, atendimentoId: r.atendimento_id, data: f.data, medicoId: f.medicoId } : null;
@@ -1524,7 +1525,7 @@ async function previaImportacao(linhas){
 async function gravarImportacao(){
   const incluirDup = $('#imp-dup') && $('#imp-dup').checked; const itens = S.importacao.filter(x => !x.erros.length && (!x.dup || incluirDup));
   const b = $('#imp-ok'); ocupado(b, true); let n = 0, pend = 0, falhas = [];
-  for (const x of itens) { try { const pl = { ...x.payload }; if (x.dup) { pl.confirmar_duplicidade = true; pl.justificativa = 'Importação de planilha — conferido pela coordenação'; } const r = await rpc('registrar_lancamento', pl); if (r.duplicado) { falhas.push(`Linha ${x.linha}: possível duplicidade (não gravada)`); continue; } n++; if (r.status !== 'valido') pend++; b.textContent = `Gravando… ${n}/${itens.length}`; } catch (e) { falhas.push(`Linha ${x.linha}: ${e.message}`); } }
+  for (const x of itens) { try { const pl = { ...x.payload }; if (x.dup) { pl.confirmar_duplicidade = true; pl.justificativa = 'Importação de planilha — conferido pela coordenação'; } const r = await rpc('registrar_lancamento', { p: pl }); if (r.duplicado) { falhas.push(`Linha ${x.linha}: possível duplicidade (não gravada)`); continue; } n++; if (r.status !== 'valido') pend++; b.textContent = `Gravando… ${n}/${itens.length}`; } catch (e) { falhas.push(`Linha ${x.linha}: ${e.message}`); } }
   $('#imp-previa').innerHTML = `<div class="aviso ${falhas.length?'warn':'ok'}"><b>${n}</b> lançamento(s) gravado(s)${pend?`, ${pend} pendente(s) de precificação`:''}.${falhas.length?`<ul>${falhas.map(f=>`<li>${esc(f)}</li>`).join('')}</ul>`:''}</div>`;
   S.co.pacientes = null; if (S.co.view === 'producao') { await CARREGA.producao(); renderCoord(); }
 }
