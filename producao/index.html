@@ -1071,13 +1071,14 @@ function selProcs(id, sel){ return `<select id="${id}"><option value="">Todos os
 /* ---------- Painel ---------- */
 CARREGA.painel = async () => {
   const ym = S.co.mes, ini12 = addMeses(ym, -11) + '-01';
-  const [resumo, hist, pend, hfr] = await Promise.all([
+  const [resumo, hist, pend, hfr, pendDoc] = await Promise.all([
     rpc('resumo_competencia', { p_comp: ym + '-01' }),
     q(sb.from('lancamentos').select('competencia,medico_id,categoria,convenio_id,procedimento_codigo,repasse,status').gte('competencia', ini12).lte('competencia', ym + '-01').neq('status','cancelado').limit(50000)),
     sb.from('lancamentos').select('id', { count:'exact', head:true }).eq('status','pendente_preco'),
-    q(sb.from('recebimentos_hfr').select('competencia,valor_bruto,valor_liquido,situacao,fonte_url').order('competencia',{ascending:false}).limit(12))
+    q(sb.from('recebimentos_hfr').select('competencia,valor_bruto,valor_liquido,situacao,fonte_url').order('competencia',{ascending:false}).limit(12)),
+    q(sb.from('pendencias_importacao_ceai').select('referencia,competencia,medico_id,paciente_nome,procedimento_original,valor_documental,situacao').neq('situacao','resolvida').order('competencia',{ascending:false}).limit(50))
   ]);
-  S.co.painel = { resumo, hist, pendTotal: pend.count || 0, hfr };
+  S.co.painel = { resumo, hist, pendTotal: pend.count || 0, hfr, pendDoc };
   await carregarMedicosCoord();
 };
 VIEW_CO.painel = () => {
@@ -1101,6 +1102,11 @@ VIEW_CO.painel = () => {
       <tbody>${(P.hfr||[]).map(h=>`<tr><td>${esc(compLabel(h.competencia.slice(0,7)))}</td><td class="num">${brl(h.valor_bruto)}</td><td class="num">${brl(h.valor_liquido)}</td><td>${h.situacao==='credito_confirmado'?'Crédito confirmado':h.situacao==='demonstrativo_recebido'?'Demonstrativo recebido':'Documento pendente'}</td><td>${h.fonte_url && h.fonte_url.startsWith('https://mail.google.com/')?`<a href="${esc(h.fonte_url)}" target="_blank" rel="noopener noreferrer">Ver e-mail</a>`:'—'}</td></tr>`).join('')}</tbody>
     </table></div>
   </div>
+  ${P.pendDoc && P.pendDoc.length ? `<div class="card">
+    <h3>Pendências de importação documental — ${P.pendDoc.length}</h3>
+    <p class="dica">Itens sem data completa ou que exigem conferência. Não somar estes valores à produção nem marcar como pagos.</p>
+    <div class="tabela-wrap"><table class="t"><thead><tr><th>Competência</th><th>Médico</th><th>Paciente</th><th>Procedimento</th><th class="num">Bruto no documento</th><th>Pendência</th></tr></thead>
+    <tbody>${P.pendDoc.map(d=>`<tr><td>${esc(compLabel(d.competencia.slice(0,7)))}</td><td>${esc(nomeMedico(d.medico_id))}</td><td>${esc(d.paciente_nome)}</td><td>${esc(d.procedimento_original)}</td><td class="num">${brl(d.valor_documental)}</td><td>${d.situacao==='data_divergente'?'Data divergente':d.situacao==='lancamento_a_conferir'?'Conferir lançamento já existente':'Data ausente'}</td></tr>`).join('')}</tbody></table></div></div>` : ''}
   ${pendCad || S.co.pedidos.length || P.pendTotal ? `<div class="aviso ouro">${pendCad ? `<div>👤 <b>${pendCad}</b> ${plural(pendCad,'cadastro')} aguardando aprovação — <button class="link" data-a="co-view" data-v="medicos">ver médicos</button></div>` : ''}${S.co.pedidos.length ? `<div>🔑 <b>${S.co.pedidos.length}</b> ${plural(S.co.pedidos.length,'pedido')} de nova senha — <button class="link" data-a="co-view" data-v="medicos">atender</button></div>` : ''}${P.pendTotal ? `<div>⏳ <b>${P.pendTotal}</b> ${plural(P.pendTotal,'lançamento')} pendente(s) de precificação — <button class="link" data-a="co-ver-pendentes">resolver</button></div>` : ''}</div>` : ''}
   <div class="card">${navMes(ym, 'co-painel-mes')}
     <div class="filtros"><label>Médico${selMedicos('pf-medico', fp.medico)}</label><label>Convênio${selConvenios('pf-conv', fp.conv)}</label><label>Procedimento${selProcs('pf-proc', fp.proc)}</label></div></div>
