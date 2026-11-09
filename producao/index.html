@@ -1244,10 +1244,69 @@ CARREGA.tabelas = async () => {
   const [mp, refs] = await Promise.all([ q(sb.from('medicamento_precos').select('*').order('vigencia_inicio')), q(sb.from('imuno_referencias').select('*').order('id')) ]);
   S.co.tab.mp = mp; S.co.tab.refs = refs;
 };
+function tabelaSimulacaoCmed(){
+  return `<div class="card">
+    <h2>CEAI · Tabela de valores por ampola, seringa, caneta ou frasco</h2>
+    <p>Simulação de 09/10/2026. PF com ICMS de 12% (MG), acréscimo de 15% e repasse médico de 1,6% do faturamento.</p>
+    <div class="aviso warn">Valores para simulação. Confira as apresentações e os registros na <a href="https://www.gov.br/anvisa/pt-br/assuntos/medicamentos/cmed/precos/precos" target="_blank" rel="noopener noreferrer">lista oficial CMED/Anvisa</a> antes de utilizar no faturamento hospitalar.</div>
+  </div>
+<div class="card"><h3>Anticorpos monoclonais</h3>
+<div class="tabela-wrap"><table class="t cards"><thead><tr><th scope="col">Medicamento</th><th scope="col">Apresentação</th><th scope="col">PF</th><th scope="col" class="num">PF + 15%</th><th scope="col" class="num">Repasse (1,6%)</th></tr></thead><tbody>
+<tr><td data-l="Medicamento" class="sem-rot">Omlyclo</td><td data-l="Apresentação">75 mg</td><td data-l="PF" class="num">R$ 1.400,31</td><td data-l="PF + 15%" class="num">R$ 1.610,36</td><td data-l="Repasse (1,6%)" class="num">R$ 25,77</td></tr>
+<tr><td data-l="Medicamento" class="sem-rot">Omlyclo</td><td data-l="Apresentação">150 mg</td><td data-l="PF" class="num">R$ 2.800,63</td><td data-l="PF + 15%" class="num">R$ 3.220,72</td><td data-l="Repasse (1,6%)" class="num">R$ 51,53</td></tr>
+<tr><td data-l="Medicamento" class="sem-rot">Dupixent</td><td data-l="Apresentação">200 mg · seringa/caneta</td><td data-l="PF" class="num">R$ 4.403,17</td><td data-l="PF + 15%" class="num">R$ 5.063,65</td><td data-l="Repasse (1,6%)" class="num">R$ 81,02</td></tr>
+<tr><td data-l="Medicamento" class="sem-rot">Dupixent</td><td data-l="Apresentação">300 mg · seringa/caneta</td><td data-l="PF" class="num">R$ 4.403,17</td><td data-l="PF + 15%" class="num">R$ 5.063,65</td><td data-l="Repasse (1,6%)" class="num">R$ 81,02</td></tr>
+<tr><td data-l="Medicamento" class="sem-rot">Nucala</td><td data-l="Apresentação">40 mg · seringa</td><td data-l="PF" class="num">R$ 3.583,83</td><td data-l="PF + 15%" class="num">R$ 4.121,40</td><td data-l="Repasse (1,6%)" class="num">R$ 65,94</td></tr>
+<tr><td data-l="Medicamento" class="sem-rot">Nucala</td><td data-l="Apresentação">100 mg · frasco liofilizado</td><td data-l="PF" class="num">R$ 7.545,23</td><td data-l="PF + 15%" class="num">R$ 8.677,01</td><td data-l="Repasse (1,6%)" class="num">R$ 138,83</td></tr>
+<tr><td data-l="Medicamento" class="sem-rot">Nucala</td><td data-l="Apresentação">100 mg · seringa</td><td data-l="PF" class="num">R$ 9.516,53</td><td data-l="PF + 15%" class="num">R$ 10.944,01</td><td data-l="Repasse (1,6%)" class="num">R$ 175,10</td></tr>
+<tr><td data-l="Medicamento" class="sem-rot">Nucala</td><td data-l="Apresentação">100 mg · caneta</td><td data-l="PF" class="num">R$ 9.624,07</td><td data-l="PF + 15%" class="num">R$ 11.067,68</td><td data-l="Repasse (1,6%)" class="num">R$ 177,08</td></tr>
+<tr><td data-l="Medicamento" class="sem-rot">Tezspire</td><td data-l="Apresentação">210 mg</td><td data-l="PF" class="num">R$ 9.269,82</td><td data-l="PF + 15%" class="num">R$ 10.660,29</td><td data-l="Repasse (1,6%)" class="num">R$ 170,56</td></tr>
+</tbody></table></div></div>
+<div class="card"><h3>Adalimumabe biossimilar</h3>
+<div class="tabela-wrap"><table class="t cards"><thead><tr><th scope="col">Medicamento</th><th scope="col">Apresentação</th><th scope="col">PF</th><th scope="col" class="num">PF + 15%</th><th scope="col" class="num">Repasse (1,6%)</th></tr></thead><tbody>
+<tr><td data-l="Medicamento" class="sem-rot">Yuflyma</td><td data-l="Apresentação">40 mg · seringa/caneta</td><td data-l="PF" class="num">R$ 1.134,61</td><td data-l="PF + 15%" class="num">R$ 1.304,80</td><td data-l="Repasse (1,6%)" class="num">R$ 20,88</td></tr>
+<tr><td data-l="Medicamento" class="sem-rot">Atenfe</td><td data-l="Apresentação">40 mg · seringa/caneta</td><td data-l="PF" class="num">R$ 1.147,98</td><td data-l="PF + 15%" class="num">R$ 1.320,18</td><td data-l="Repasse (1,6%)" class="num">R$ 21,12</td></tr>
+<tr><td data-l="Medicamento" class="sem-rot">Hadlima</td><td data-l="Apresentação">40 mg · seringa/caneta</td><td data-l="PF" class="num">R$ 1.500,64</td><td data-l="PF + 15%" class="num">R$ 1.725,74</td><td data-l="Repasse (1,6%)" class="num">R$ 27,61</td></tr>
+<tr><td data-l="Medicamento" class="sem-rot">Hulio</td><td data-l="Apresentação">40 mg · seringa/caneta</td><td data-l="PF" class="num">R$ 1.583,07</td><td data-l="PF + 15%" class="num">R$ 1.820,53</td><td data-l="Repasse (1,6%)" class="num">R$ 29,13</td></tr>
+<tr><td data-l="Medicamento" class="sem-rot">Amgevita</td><td data-l="Apresentação">40 mg · seringa/caneta</td><td data-l="PF" class="num">R$ 1.649,84</td><td data-l="PF + 15%" class="num">R$ 1.897,32</td><td data-l="Repasse (1,6%)" class="num">R$ 30,36</td></tr>
+<tr><td data-l="Medicamento" class="sem-rot">Idacio</td><td data-l="Apresentação">40 mg · seringa/caneta</td><td data-l="PF" class="num">R$ 1.926,67</td><td data-l="PF + 15%" class="num">R$ 2.215,67</td><td data-l="Repasse (1,6%)" class="num">R$ 35,45</td></tr>
+<tr><td data-l="Medicamento" class="sem-rot">Hyrimoz</td><td data-l="Apresentação">40 mg · seringa/caneta</td><td data-l="PF" class="num">R$ 5.509,64</td><td data-l="PF + 15%" class="num">R$ 6.336,09</td><td data-l="Repasse (1,6%)" class="num">R$ 101,38</td></tr>
+<tr><td data-l="Medicamento" class="sem-rot">Xilbrilada</td><td data-l="Apresentação">40 mg · seringa/caneta</td><td data-l="PF" class="num">R$ 5.509,64</td><td data-l="PF + 15%" class="num">R$ 6.336,09</td><td data-l="Repasse (1,6%)" class="num">R$ 101,38</td></tr>
+</tbody></table></div></div>
+<div class="card"><h3>Imunoglobulinas humanas</h3>
+<div class="tabela-wrap"><table class="t cards"><thead><tr><th scope="col">Medicamento</th><th scope="col">Apresentação</th><th scope="col">PF</th><th scope="col" class="num">PF + 15%</th><th scope="col" class="num">Repasse (1,6%)</th></tr></thead><tbody>
+<tr><td data-l="Medicamento" class="sem-rot">Privigen</td><td data-l="Apresentação">2,5 g · frasco</td><td data-l="PF" class="num">R$ 1.059,34</td><td data-l="PF + 15%" class="num">R$ 1.218,24</td><td data-l="Repasse (1,6%)" class="num">R$ 19,49</td></tr>
+<tr><td data-l="Medicamento" class="sem-rot">Privigen</td><td data-l="Apresentação">5 g · frasco</td><td data-l="PF" class="num">R$ 3.465,49</td><td data-l="PF + 15%" class="num">R$ 3.985,31</td><td data-l="Repasse (1,6%)" class="num">R$ 63,76</td></tr>
+<tr><td data-l="Medicamento" class="sem-rot">Privigen</td><td data-l="Apresentação">10 g · frasco</td><td data-l="PF" class="num">R$ 4.237,32</td><td data-l="PF + 15%" class="num">R$ 4.872,92</td><td data-l="Repasse (1,6%)" class="num">R$ 77,97</td></tr>
+<tr><td data-l="Medicamento" class="sem-rot">Privigen</td><td data-l="Apresentação">20 g · frasco</td><td data-l="PF" class="num">R$ 8.474,65</td><td data-l="PF + 15%" class="num">R$ 9.745,85</td><td data-l="Repasse (1,6%)" class="num">R$ 155,93</td></tr>
+<tr><td data-l="Medicamento" class="sem-rot">Hyqvia</td><td data-l="Apresentação">2,5 g · conjunto</td><td data-l="PF" class="num">R$ 1.100,06</td><td data-l="PF + 15%" class="num">R$ 1.265,07</td><td data-l="Repasse (1,6%)" class="num">R$ 20,24</td></tr>
+<tr><td data-l="Medicamento" class="sem-rot">Hyqvia</td><td data-l="Apresentação">5 g · conjunto</td><td data-l="PF" class="num">R$ 3.379,66</td><td data-l="PF + 15%" class="num">R$ 3.886,61</td><td data-l="Repasse (1,6%)" class="num">R$ 62,19</td></tr>
+<tr><td data-l="Medicamento" class="sem-rot">Hyqvia</td><td data-l="Apresentação">10 g · conjunto</td><td data-l="PF" class="num">R$ 4.400,25</td><td data-l="PF + 15%" class="num">R$ 5.060,29</td><td data-l="Repasse (1,6%)" class="num">R$ 80,96</td></tr>
+<tr><td data-l="Medicamento" class="sem-rot">Hyqvia</td><td data-l="Apresentação">20 g · conjunto</td><td data-l="PF" class="num">R$ 8.800,50</td><td data-l="PF + 15%" class="num">R$ 10.120,58</td><td data-l="Repasse (1,6%)" class="num">R$ 161,93</td></tr>
+<tr><td data-l="Medicamento" class="sem-rot">Hyqvia</td><td data-l="Apresentação">30 g · conjunto</td><td data-l="PF" class="num">R$ 13.200,74</td><td data-l="PF + 15%" class="num">R$ 15.180,85</td><td data-l="Repasse (1,6%)" class="num">R$ 242,89</td></tr>
+<tr><td data-l="Medicamento" class="sem-rot">Hizentra</td><td data-l="Apresentação">1 g · frasco</td><td data-l="PF" class="num">R$ 411,69</td><td data-l="PF + 15%" class="num">R$ 473,44</td><td data-l="Repasse (1,6%)" class="num">R$ 7,58</td></tr>
+<tr><td data-l="Medicamento" class="sem-rot">Hizentra</td><td data-l="Apresentação">2 g · frasco</td><td data-l="PF" class="num">R$ 823,41</td><td data-l="PF + 15%" class="num">R$ 946,92</td><td data-l="Repasse (1,6%)" class="num">R$ 15,15</td></tr>
+<tr><td data-l="Medicamento" class="sem-rot">Hizentra</td><td data-l="Apresentação">4 g · frasco</td><td data-l="PF" class="num">R$ 1.646,80</td><td data-l="PF + 15%" class="num">R$ 1.893,82</td><td data-l="Repasse (1,6%)" class="num">R$ 30,30</td></tr>
+</tbody></table></div></div>
+<div class="card"><h3>Exemplos de repasse por aplicação</h3>
+<p class="dica">O cálculo inclui somente a medicação. Taxas de infusão e procedimentos associados ficam fora da simulação.</p>
+<div class="tabela-wrap"><table class="t cards"><thead><tr><th scope="col">Aplicação</th><th scope="col" class="num">Faturamento</th><th scope="col" class="num">Repasse (1,6%)</th></tr></thead><tbody>
+<tr><td data-l="Aplicação" class="sem-rot">Omlyclo 300 mg (2 × 150 mg)</td><td data-l="Faturamento" class="num">R$ 6.441,44</td><td data-l="Repasse (1,6%)" class="num">R$ 103,06</td></tr>
+<tr><td data-l="Aplicação" class="sem-rot">Dupixent 300 mg (1 seringa)</td><td data-l="Faturamento" class="num">R$ 5.063,65</td><td data-l="Repasse (1,6%)" class="num">R$ 81,02</td></tr>
+<tr><td data-l="Aplicação" class="sem-rot">Nucala 100 mg (1 caneta)</td><td data-l="Faturamento" class="num">R$ 11.067,68</td><td data-l="Repasse (1,6%)" class="num">R$ 177,08</td></tr>
+<tr><td data-l="Aplicação" class="sem-rot">Tezspire 210 mg (1 caneta)</td><td data-l="Faturamento" class="num">R$ 10.660,29</td><td data-l="Repasse (1,6%)" class="num">R$ 170,56</td></tr>
+<tr><td data-l="Aplicação" class="sem-rot">Yuflyma 40 mg (1 caneta)</td><td data-l="Faturamento" class="num">R$ 1.304,80</td><td data-l="Repasse (1,6%)" class="num">R$ 20,88</td></tr>
+<tr><td data-l="Aplicação" class="sem-rot">Privigen 30 g (3 × 10 g)</td><td data-l="Faturamento" class="num">R$ 14.618,76</td><td data-l="Repasse (1,6%)" class="num">R$ 233,90</td></tr>
+<tr><td data-l="Aplicação" class="sem-rot">Hyqvia 30 g (1 conjunto)</td><td data-l="Faturamento" class="num">R$ 15.180,85</td><td data-l="Repasse (1,6%)" class="num">R$ 242,89</td></tr>
+<tr><td data-l="Aplicação" class="sem-rot">Hizentra 8 g (2 × 4 g)</td><td data-l="Faturamento" class="num">R$ 3.787,64</td><td data-l="Repasse (1,6%)" class="num">R$ 60,60</td></tr>
+</tbody></table></div></div>`;
+}
+
 VIEW_CO.tabelas = () => {
   const T = S.co.tab, hoje = S.ctx.hoje;
-  const abas = [['proc','Procedimentos e honorários'],['prick','Prick por convênio'],['imuno','Imunobiológicos'],['conv','Convênios']];
+  const abas = [['proc','Procedimentos e honorários'],['prick','Prick por convênio'],['imuno','Imunobiológicos'],['cmed','Valores CMED'],['conv','Convênios']];
   let corpo = '';
+  if (T.aba === 'cmed') corpo = tabelaSimulacaoCmed();
   if (T.aba === 'proc') corpo = `<div class="card"><div class="cab-lista"><h3>Tabela de honorários</h3><button class="btn btn-peq btn-ouro" data-a="co-novo-proc">+ Procedimento</button></div><p class="dica">Alterar um valor cria nova vigência; lançamentos já feitos guardam o valor do dia do registro.</p>
     <div class="tabela-wrap"><table class="t cards"><thead><tr><th>Código</th><th>Procedimento</th><th>Cálculo</th><th class="num">Valor vigente</th><th>Desde</th><th></th></tr></thead><tbody>${S.ref.procs.map(p => { const v = vigente(S.ref.valores,'procedimento_id',p.id,hoje); return `<tr><td data-l="Código">${esc(p.codigo)}</td><td data-l="Procedimento" class="sem-rot"><b>${esc(p.nome)}</b> <span class="dica">${esc(p.categoria)}</span>${p.ativo?'':' <span class="chip err">Inativo</span>'}</td><td data-l="Cálculo">${{fixo:'Valor fixo',por_unidade:'Por '+(p.unidade||'unidade'),prick_convenio:'% do convênio',imunobiologico:'% do valor-base'}[p.tipo_calculo]}</td><td class="num" data-l="Valor">${v ? (v.valor!==null ? brl(v.valor) + (v.valor_nao_socio!==null?`<div class="dica">não sócio: ${brl(v.valor_nao_socio)}</div>`:'') : pct(v.percentual)) : '<span class="chip warn">sem valor</span>'}</td><td data-l="Desde">${v?fmtData(v.vigencia_inicio):'—'}</td><td class="sem-rot"><div class="acoes-t"><button class="btn btn-peq" data-a="co-valor-proc" data-id="${p.id}">Alterar valor</button><button class="btn btn-peq" data-a="co-hist-valores" data-id="${p.id}">Histórico</button><button class="btn btn-peq" data-a="co-ativo-proc" data-id="${p.id}">${p.ativo?'Desativar':'Ativar'}</button></div></td></tr>`; }).join('')}</tbody></table></div></div>`;
   if (T.aba === 'prick') { const t = norm(T.busca); corpo = `<div class="card"><div class="cab-lista"><h3>Prick Test — valor-base por convênio</h3><button class="btn btn-peq btn-ouro" data-a="co-novo-conv">+ Convênio</button></div><p class="dica">Repasse = 50% do valor-base vigente (arredondamento comercial). Sem valor cadastrado, o lançamento fica pendente de precificação.</p>
