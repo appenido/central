@@ -632,16 +632,17 @@ async function iniciarMedico(){
   await Promise.all([carregarPacientesMed(), carregarMesMed(S.med.mes)]);
   renderMedico();
 }
-async function carregarPacientesMed(){ S.med.pacientes = await q(sb.from('pacientes').select('id,nome,prontuario,convenio_principal_id').order('nome').limit(5000)); }
+async function carregarPacientesMed(){ const estado = S.med; estado.pacientes = await q(sb.from('pacientes').select('id,nome,prontuario,convenio_principal_id').order('nome').limit(5000)); }
 /* O médico NÃO vê valores: a produção dele vem da função meu_mes, que não devolve R$. */
 async function carregarMesMed(ym, forcar){
   if (!forcar && S.med.cache[ym]) return S.med.cache[ym];
+  const estado = S.med;
   const mid = S.ctx.medico.id, ini = ym + '-01', fim = fimMes(ym);
   const [mes, agenda] = await Promise.all([
     rpc('meu_mes', { p_comp: ini }),
     q(sb.from('agenda_dias').select('*').eq('medico_id', mid).gte('data', ini).lte('data', fim))
   ]);
-  return S.med.cache[ym] = { lancs: mes.lancamentos || [], agenda, bloqueado: !!mes.bloqueado, fechada: !!mes.fechada };
+  return estado.cache[ym] = { lancs: mes.lancamentos || [], agenda, bloqueado: !!mes.bloqueado, fechada: !!mes.fechada };
 }
 function bloqueioMed(ym){ const d = S.med.cache[ym]; return !!(d && d.bloqueado); }
 function atendeMed(iso, d){ const a = d && d.agenda.find(x => x.data === iso); if (a) return a.ativo; return (S.ctx.medico.dias_semana || []).includes(dow(iso)); }
@@ -781,8 +782,8 @@ function viewPerfil(){
 }
 
 /* ---- ações do médico ---- */
-async function medIrMes(ym){ S.med.mes = ym; $('#app').querySelector('.conteudo').innerHTML = telaCarregando(); await carregarMesMed(ym); renderMedico(); }
-async function medAbrirDia(iso){ S.med.dia = iso; S.med.view = 'dia'; S.med.busca = ''; if (S.med.combo && S.med.combo.data !== iso) S.med.combo = null; await carregarMesMed(iso.slice(0,7)); renderMedico(); window.scrollTo(0,0); }
+async function medIrMes(ym){ S.med.mes = ym; $('#app').querySelector('.conteudo').innerHTML = telaCarregando(); await carregarMesMed(ym, true); renderMedico(); }
+async function medAbrirDia(iso){ S.med.dia = iso; S.med.view = 'dia'; S.med.busca = ''; if (S.med.combo && S.med.combo.data !== iso) S.med.combo = null; await carregarMesMed(iso.slice(0,7), true); renderMedico(); window.scrollTo(0,0); }
 async function medRecarregar(ym){ delete S.med.cache[ym]; await Promise.all([carregarMesMed(ym, true), carregarPacientesMed()]); }
 
 /* ============================ formulário de lançamento ============================ */
@@ -953,12 +954,41 @@ async function salvarLanc(mais){
 }
 async function aposSalvar(data, combo){
   if (S.ctx.papel === 'coordenador') {
+    const view = S.co.view;
+    S.co.pacientes = null;
+    await Promise.all([carregarPacientesCoord(), CARREGA[view]()]);
+    if (S.co.view === view) renderCoord();
     if (combo) { abrirNovoLanc('', { data: combo.data, medicoId: combo.medicoId, combo }); toast('Escolha o próximo procedimento deste atendimento.'); }
-    if (S.co.view === 'producao') { await CARREGA.producao(); renderCoord(); }
     return;
   }
   S.med.combo = combo; await medRecarregar(data.slice(0,7)); if (S.med.view === 'dia' && S.med.dia !== data) S.med.dia = data; renderMedico();
 }
+let atualizandoProducaoMed = false;
+async function atualizarProducaoMed(){
+  const estado = S.med;
+  if (atualizandoProducaoMed || document.hidden || !S.ctx?.medico || !estado ||
+      estado.view === 'perfil' || estado.editAgenda || $('#sheet-root').childElementCount) return;
+  const view = estado.view;
+  const mesVisivel = () => estado.view === 'dia' ? estado.dia.slice(0,7) : estado.mes;
+  const ym = mesVisivel();
+  const anterior = estado.cache[ym];
+  if (!anterior) return;
+  atualizandoProducaoMed = true;
+  try {
+    const novo = await carregarMesMed(ym, true);
+    if (S.med === estado && S.ctx?.medico && estado.view === view && ym === mesVisivel() &&
+        !estado.editAgenda && !$('#sheet-root').childElementCount &&
+        JSON.stringify(anterior) !== JSON.stringify(novo)) {
+      renderMedico();
+      carregarPacientesMed().catch(console.error);
+    }
+  } catch (e) { console.error(e); }
+  finally { atualizandoProducaoMed = false; }
+}
+document.addEventListener('visibilitychange', atualizarProducaoMed);
+window.addEventListener('focus', atualizarProducaoMed);
+setInterval(atualizarProducaoMed, 30000);
+
 function acharLanc(id){
   if (S.co && S.co.prod && S.co.prod.rows) { const l = S.co.prod.rows.find(x => x.id === id); if (l) return l; }
   if (S.med) for (const k in S.med.cache) { const l = S.med.cache[k].lancs.find(x => x.id === id); if (l) return l; }
@@ -1610,7 +1640,7 @@ const A = {
   'step': el => { const i = $('#' + el.dataset.t); if (!i) return; const v = clampInt(i.value, +i.min || 1, +i.max || 100) + Number(el.dataset.d); i.value = Math.max(+i.min || 1, Math.min(+i.max || 100, v)); i.dispatchEvent(new Event('input', { bubbles:true })); },
   'trocar-senha': () => formSheet('Trocar senha', `${campoSenha('senha','new-password','Nova senha (mín. 8 caracteres)')}${campoSenha('senha2','new-password','Repita a nova senha')}`, 'Salvar senha', async f => { if (f.senha.value.length < 8) throw new Error('A senha deve ter ao menos 8 caracteres.'); if (f.senha.value !== f.senha2.value) throw new Error('As senhas não conferem.'); const { error } = await sb.auth.updateUser({ password: f.senha.value }); if (error) throw erroHumano(error); toast('Senha alterada.'); }),
   /* médico */
-  'med-view': async el => { const v = el.dataset.v; if (v === 'dia') return medAbrirDia(S.med.dia || S.ctx.hoje); S.med.view = v; if (v === 'mes' || v === 'agenda') await carregarMesMed(S.med.mes); renderMedico(); window.scrollTo(0,0); },
+  'med-view': async el => { const v = el.dataset.v; if (v === 'dia') return medAbrirDia(S.med.dia || S.ctx.hoje); S.med.view = v; if (v === 'mes' || v === 'agenda') await carregarMesMed(S.med.mes, true); renderMedico(); window.scrollTo(0,0); },
   'med-mes': el => medIrMes(addMeses(S.med.mes, Number(el.dataset.delta))),
   'med-abrir-dia': el => { S.med.mes = el.dataset.d.slice(0,7); return medAbrirDia(el.dataset.d); },
   'med-dia': el => { const d = addDias(S.med.dia, Number(el.dataset.delta)); S.med.mes = d.slice(0,7); return medAbrirDia(d); },
