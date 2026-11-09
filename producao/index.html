@@ -637,12 +637,15 @@ async function carregarPacientesMed(){ const estado = S.med; estado.pacientes = 
 async function carregarMesMed(ym, forcar){
   if (!forcar && S.med.cache[ym]) return S.med.cache[ym];
   const estado = S.med;
+  return estado.cache[ym] = await buscarMesMed(ym);
+}
+async function buscarMesMed(ym){
   const mid = S.ctx.medico.id, ini = ym + '-01', fim = fimMes(ym);
   const [mes, agenda] = await Promise.all([
     rpc('meu_mes', { p_comp: ini }),
     q(sb.from('agenda_dias').select('*').eq('medico_id', mid).gte('data', ini).lte('data', fim))
   ]);
-  return estado.cache[ym] = { lancs: mes.lancamentos || [], agenda, bloqueado: !!mes.bloqueado, fechada: !!mes.fechada };
+  return { lancs: mes.lancamentos || [], agenda, bloqueado: !!mes.bloqueado, fechada: !!mes.fechada };
 }
 function bloqueioMed(ym){ const d = S.med.cache[ym]; return !!(d && d.bloqueado); }
 function atendeMed(iso, d){ const a = d && d.agenda.find(x => x.data === iso); if (a) return a.ativo; return (S.ctx.medico.dias_semana || []).includes(dow(iso)); }
@@ -975,10 +978,11 @@ async function atualizarProducaoMed(){
   if (!anterior) return;
   atualizandoProducaoMed = true;
   try {
-    const novo = await carregarMesMed(ym, true);
+    const novo = await buscarMesMed(ym);
     if (S.med === estado && S.ctx?.medico && estado.view === view && ym === mesVisivel() &&
-        !estado.editAgenda && !$('#sheet-root').childElementCount &&
+        !estado.editAgenda && !$('#sheet-root').childElementCount && estado.cache[ym] === anterior &&
         JSON.stringify(anterior) !== JSON.stringify(novo)) {
+      estado.cache[ym] = novo;
       renderMedico();
       carregarPacientesMed().catch(console.error);
     }
