@@ -337,6 +337,28 @@ html { scroll-behavior:smooth; }
   .item-del-btn:hover { color:var(--crit); background:#fee2e2; }
   .tag-urgente { display:inline-block; background:#c0392b; color:#fff; padding:2px 8px; border-radius:99px; font-size:.72rem; font-weight:700; margin-left:6px; vertical-align:middle; }
 </style>
+<style>
+/* ── relatório com o GPT ── */
+.rel{margin-top:10px}
+.rel-box{margin-top:10px;border:1.5px solid var(--gold);border-radius:12px;background:var(--gold-soft);padding:12px;display:flex;flex-direction:column;gap:8px}
+.rel-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.rel-head b{font-family:"Cormorant Garamond",Georgia,serif;font-size:1.08rem;color:var(--navy)}
+.rel-x{border:0;background:none;cursor:pointer;font-size:1rem;color:var(--text-2);padding:2px 6px}
+.rel-box label{font-size:.8rem;font-weight:700;color:var(--navy)}
+.rel-box textarea{width:100%;border:1.5px solid var(--border);border-radius:10px;padding:9px 11px;font:inherit;font-size:.9rem;background:var(--surface);color:var(--text);resize:vertical;line-height:1.5}
+.rel-box textarea:focus{outline:none;border-color:var(--gold)}
+.rel-texto{min-height:200px}
+.rel-nota{font-size:.76rem;color:var(--text-2);line-height:1.4}
+.rel-passos{display:flex;flex-wrap:wrap;gap:6px}
+.rel-passos .btn{flex:1 1 150px}
+.rel-link{border:0;background:none;padding:0;cursor:pointer;color:var(--navy);font-weight:700;font-size:.8rem;text-decoration:underline;align-self:flex-start;font-family:inherit}
+.rel-gerando{display:flex;align-items:center;gap:8px;font-size:.85rem;color:var(--navy);font-weight:600}
+.rel-gerando .spinner{width:18px;height:18px;border-width:2px}
+.selo-ass{color:#0e7a5e;font-weight:700}
+.cfg-nota{font-size:.84rem;margin-bottom:10px;padding:8px 10px;border-radius:8px;background:var(--surface-2)}
+.cfg-nota.ok{color:#0e7a5e}.cfg-nota.pend{color:#a05a00}
+.field small{font-size:.76rem;color:var(--text-2);line-height:1.4}
+</style>
 </head>
 <body>
 <header class="top">
@@ -420,6 +442,26 @@ html { scroll-behavior:smooth; }
         <div class="field">
           <label for="cfgEmail">E-mail</label>
           <input id="cfgEmail" type="email" inputmode="email" placeholder="seuemail@exemplo.com">
+        </div>
+      </div>
+    </div>
+    <div class="config-section">
+      <h3>Relatórios com meu GPT</h3>
+      <p class="cfg-nota" id="gptChave">verificando…</p>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div class="field">
+          <label for="gptInstr">Instruções do seu GPT</label>
+          <textarea id="gptInstr" rows="8" placeholder="Cole aqui as instruções do seu GPT. Em branco, uso instruções padrão para relatório médico."></textarea>
+          <small>No ChatGPT: abra o seu GPT → Editar → Configurar → copie todo o campo "Instruções" e cole aqui.</small>
+        </div>
+        <div class="field">
+          <label for="gptModelo">Modelo da OpenAI</label>
+          <input id="gptModelo" placeholder="gpt-5" autocomplete="off">
+        </div>
+        <div class="field">
+          <label for="gptAssinador">Site onde você assina com seu certificado</label>
+          <input id="gptAssinador" type="url" inputmode="url" placeholder="https://…" autocomplete="off">
+          <small>Endereço do portal do seu certificado em nuvem (ICP-Brasil). O botão "Assinar" do relatório abre esse site.</small>
         </div>
       </div>
     </div>
@@ -807,6 +849,7 @@ function itemHTML(d) {
 
     ${conversaHTML(d)}
     ${anexosHTML(d, true)}
+    ${relHTML(d)}
 
     ${podeResponder ? `
     <div class="resp-wrap">
@@ -871,6 +914,7 @@ async function reabrir(id) {
 
 // ── config ────────────────────────────────────────────────────────────────────
 async function carregarCfg() {
+  carregarGpt(true);
   const box = document.getElementById("linkEquipeBox");
   box.textContent = "carregando…";
   try {
@@ -909,8 +953,9 @@ document.getElementById("btnSalvarCfg").addEventListener("click", async () => {
   try {
     await API.req(BASE+"/api/painel/config", { method: "PUT", token: S.token, body: cfg });
     S.cfg = cfg;
+    await salvarGpt();
     toast("Configurações salvas!");
-  } catch { toast("Erro ao salvar. Tente de novo."); }
+  } catch (err) { toast(err && err.data && err.data.erro ? err.data.erro : "Erro ao salvar. Tente de novo."); }
 });
 </script>
 
@@ -990,7 +1035,7 @@ function anexosHTML(d, medico){
   const lista = d.anexos || [];
   const itens = lista.map(a => `<div class="anexo">
       <span aria-hidden="true">📎</span>
-      <span class="an-nome" title="${esc(a.nome)}">${esc(a.nome)}<br><span class="an-info">${tamanhoTxt(a.tamanho)}${a.em?` · ${quando(a.em)}`:""}</span></span>
+      <span class="an-nome" title="${esc(a.nome)}">${esc(a.nome)}<br><span class="an-info">${tamanhoTxt(a.tamanho)}${a.em?` · ${quando(a.em)}`:""}${a.assinado?` · <span class="selo-ass">✔ assinado digitalmente</span>`:""}</span></span>
       <button type="button" data-baixar="${esc(a.path)}" data-id="${esc(d.id)}">Baixar</button>
       ${medico?`<button type="button" class="rm" data-remover-anexo="${esc(a.path)}" data-id="${esc(d.id)}">Remover</button>`:""}
     </div>`).join("");
@@ -1011,6 +1056,267 @@ document.addEventListener("click", e => {
   const b = e.target.closest("[data-baixar]");
   if (b) baixarAnexo(b.dataset.id, b.dataset.baixar, b);
 });
+</script>
+
+<script>
+// ── relatório com o GPT → PDF timbrado → assinatura ICP-Brasil → anexo ─────────
+S.rel = {};          // estado por demanda: { aberto, orient, texto, gerando }
+S.gptCfg = null;     // { instrucoes, modelo, assinador_url, vector_store_id, chave_ok }
+
+function relEstado(id){ return S.rel[id] || (S.rel[id] = { aberto:false, orient:"", texto:"", gerando:false }); }
+
+function relHTML(d){
+  const st = S.rel[d.id];
+  if (!st || !st.aberto) {
+    return `<div class="rel"><button type="button" class="btn btn-ghost btn-sm" data-rel-abrir="${esc(d.id)}">✨ Relatório com meu GPT</button></div>`;
+  }
+  const id = esc(d.id);
+  return `<div class="rel"><div class="rel-box">
+    <div class="rel-head"><b>Relatório com meu GPT</b><button type="button" class="rel-x" data-rel-fechar="${id}" aria-label="Fechar">✕</button></div>
+    <label for="rel-o-${id}">O que o relatório deve conter? (opcional)</label>
+    <textarea id="rel-o-${id}" rows="2" data-rel-orient="${id}" placeholder="Ex.: relatório para o convênio liberar dupilumabe; citar falha de corticoide tópico e ciclosporina.">${esc(st.orient)}</textarea>
+    ${st.gerando
+      ? `<div class="rel-gerando"><span class="spinner"></span>Gerando com o seu GPT… pode levar até 1 minuto.</div>`
+      : `<button type="button" class="btn btn-gold btn-sm" data-rel-gerar="${id}">${st.texto ? "Gerar de novo" : "Gerar texto do relatório"}</button>`}
+    <p class="rel-nota">O nome e o telefone do paciente não são enviados ao GPT; o nome entra só no PDF.</p>
+    ${st.texto ? `
+    <label for="rel-t-${id}">Texto do relatório — revise e edite à vontade</label>
+    <textarea id="rel-t-${id}" class="rel-texto" data-rel-texto="${id}">${esc(st.texto)}</textarea>
+    <div class="rel-passos">
+      <button type="button" class="btn btn-primary btn-sm" data-rel-pdf="${id}">1 · Baixar PDF timbrado</button>
+      <button type="button" class="btn btn-ghost btn-sm" data-rel-assinar="${id}">2 · Assinar com meu certificado ↗</button>
+      <button type="button" class="btn btn-gold btn-sm" data-anexar="${id}">3 · 📎 Anexar PDF assinado</button>
+    </div>
+    <p class="rel-nota">Assine o PDF no portal do seu certificado em nuvem (ICP-Brasil) e anexe aqui o arquivo assinado: a secretária baixa na Central, com o selo "assinado digitalmente".</p>
+    <button type="button" class="rel-link" data-rel-usar="${id}">Usar este texto também como resposta à secretária</button>` : ""}
+  </div></div>`;
+}
+
+function relRedesenhar(id){
+  const art = document.querySelector(`[data-item-id="${CSS.escape(id)}"]`);
+  const box = art && art.querySelector(".rel");
+  const d = S.demandas.find(x => x.id === id);
+  if (!box || !d) { renderLista(); return; }
+  box.outerHTML = relHTML(d);
+}
+
+document.addEventListener("input", e => {
+  const o = e.target.closest("[data-rel-orient]");
+  if (o) { relEstado(o.dataset.relOrient).orient = o.value; return; }
+  const t = e.target.closest("[data-rel-texto]");
+  if (t) relEstado(t.dataset.relTexto).texto = t.value;
+});
+
+document.addEventListener("click", e => {
+  let b;
+  if ((b = e.target.closest("[data-rel-abrir]")))  { const id = b.dataset.relAbrir; relEstado(id).aberto = true; relRedesenhar(id); carregarGpt(false); return; }
+  if ((b = e.target.closest("[data-rel-fechar]"))) { const id = b.dataset.relFechar; relEstado(id).aberto = false; relRedesenhar(id); return; }
+  if ((b = e.target.closest("[data-rel-gerar]")))  { gerarTextoRel(b.dataset.relGerar); return; }
+  if ((b = e.target.closest("[data-rel-pdf]")))    { baixarPdfRel(b.dataset.relPdf, b); return; }
+  if ((b = e.target.closest("[data-rel-assinar]"))) { abrirAssinador(); return; }
+  if ((b = e.target.closest("[data-rel-usar]")))   {
+    const id = b.dataset.relUsar, ta = document.getElementById(`resp-${id}`);
+    if (!ta) { toast("Esta demanda está resolvida. Reabra para responder."); return; }
+    ta.value = relEstado(id).texto; ta.focus(); ta.scrollIntoView({ behavior:"smooth", block:"center" });
+    toast("Texto colocado na resposta. Confira e envie.");
+  }
+});
+
+async function carregarGpt(preencher){
+  try {
+    if (!S.gptCfg || preencher) S.gptCfg = await API.req(BASE+"/api/painel/gpt", { token: S.token });
+  } catch { if (preencher) { const n = document.getElementById("gptChave"); n.textContent = "Não foi possível carregar agora."; n.className = "cfg-nota pend"; } return; }
+  if (!preencher) return;
+  const c = S.gptCfg;
+  document.getElementById("gptInstr").value     = c.instrucoes || "";
+  document.getElementById("gptModelo").value    = c.modelo || "gpt-5";
+  document.getElementById("gptAssinador").value = c.assinador_url || "";
+  const n = document.getElementById("gptChave");
+  n.textContent = c.chave_ok ? "✔ Chave da OpenAI cadastrada no servidor." : "⚠ Falta cadastrar a chave da OpenAI no servidor — sem ela o botão de relatório não funciona.";
+  n.className = "cfg-nota " + (c.chave_ok ? "ok" : "pend");
+}
+
+async function salvarGpt(){
+  const novo = {
+    instrucoes:    document.getElementById("gptInstr").value,
+    modelo:        document.getElementById("gptModelo").value.trim() || "gpt-5",
+    assinador_url: document.getElementById("gptAssinador").value.trim(),
+    vector_store_id: (S.gptCfg && S.gptCfg.vector_store_id) || "",
+  };
+  await API.req(BASE+"/api/painel/gpt", { method: "POST", token: S.token, body: novo });
+  S.gptCfg = Object.assign({}, S.gptCfg || {}, novo);
+}
+
+async function gerarTextoRel(id){
+  const st = relEstado(id);
+  if (st.gerando) return;
+  if (st.texto && !confirm("Gerar de novo substitui o texto atual (inclusive suas edições). Continuar?")) return;
+  st.gerando = true; relRedesenhar(id);
+  try {
+    const r = await API.req(BASE+`/api/painel/demandas/${encodeURIComponent(id)}/relatorio`, {
+      method: "POST", token: S.token, body: { orientacao: st.orient.trim() },
+    });
+    st.texto = r.texto || "";
+    toast("Texto pronto. Revise antes de gerar o PDF.");
+  } catch (err) {
+    toast((err && err.data && err.data.erro) || "Não foi possível gerar agora. Tente de novo.", 6000);
+  } finally {
+    st.gerando = false; relRedesenhar(id);
+  }
+}
+
+function abrirAssinador(){
+  const u = S.gptCfg && S.gptCfg.assinador_url;
+  if (!u) { toast("Cadastre em Configurações o site onde você assina com o seu certificado.", 5000); return; }
+  window.open(u, "_blank", "noopener");
+}
+
+// ── PDF timbrado (jsPDF) ─────────────────────────────────────────────────────
+let _jsPDF = null;
+function carregarScript(src){
+  return new Promise((ok, no) => { const s = document.createElement("script"); s.src = src; s.onload = ok; s.onerror = no; document.head.appendChild(s); });
+}
+async function obterJsPDF(){
+  if (_jsPDF) return _jsPDF;
+  if (!(window.jspdf && window.jspdf.jsPDF)) {
+    try { await carregarScript("https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"); }
+    catch { await carregarScript("https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"); }
+  }
+  return (_jsPDF = window.jspdf.jsPDF);
+}
+function svgParaPNG(svg, px){
+  return new Promise(ok => {
+    const img = new Image();
+    img.onload = () => { try { const c = document.createElement("canvas"); c.width = c.height = px; c.getContext("2d").drawImage(img, 0, 0, px, px); ok(c.toDataURL("image/png")); } catch { ok(null); } };
+    img.onerror = () => ok(null);
+    img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+  });
+}
+// As fontes-padrão do PDF só garantem o Latin-1: troca o resto por equivalentes simples.
+function pdfTxt(s){
+  return String(s || "")
+    .replace(/[\u2212\u2010\u2011\u2012\u2013\u2014\u2015]/g, "-").replace(/[\u00A0\u2007\u202F\u2009]/g, " ")
+    .replace(/[\u201C\u201D\u201E\u00AB\u00BB]/g, '"').replace(/[\u2018\u2019\u201A]/g, "'")
+    .replace(/\u2026/g, "...").replace(/\u2022/g, "-").replace(/\u20AC/g, "EUR")
+    .replace(/\u2265/g, ">=").replace(/\u2264/g, "<=").replace(/\u2192/g, "->")
+    .replace(/[^\u0000-\u00FF]/g, "");
+}
+function slugArq(s){ return String(s || "paciente").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^A-Za-z0-9]+/g, "_").replace(/^_|_$/g, "").slice(0, 40) || "paciente"; }
+
+async function montarPdfRel(nomePaciente, texto){
+  const jsPDF = await obterJsPDF();
+  const logo = await svgParaPNG(MONO, 240);
+  const doc = new jsPDF({ unit: "mm", format: "a4" });
+  const W = 210, H = 297, M = 22, LIM = H - 34;
+  const NAVY = [14,39,71], GOLD = [168,129,58], INK = [33,37,41], MUTED = [104,112,122];
+  const FS = 11, FATOR = 1.45, LH = FS * FATOR * 0.3528;
+  doc.setLineHeightFactor(FATOR);
+
+  const cabecalho = () => {
+    if (logo) doc.addImage(logo, "PNG", M, 15, 14, 14);
+    const xT = logo ? M + 18 : M;
+    doc.setFont("times", "bold"); doc.setFontSize(19); doc.setTextColor(...NAVY);
+    doc.text(pdfTxt("Dr. Antônio Penido"), xT, 22.3);
+    doc.setFont("helvetica", "bold"); doc.setFontSize(8.6); doc.setTextColor(...GOLD);
+    doc.text("ALERGIA E IMUNOLOGIA", xT, 27.8, { charSpace: 0.55 });
+    doc.setFont("helvetica", "normal"); doc.setFontSize(8.4); doc.setTextColor(...MUTED);
+    doc.text(pdfTxt("CRM-MG 59.766  ·  RQE 48.720"), W - M, 22.3, { align: "right" });
+    doc.text(pdfTxt("Belo Horizonte · MG"), W - M, 27.8, { align: "right" });
+    doc.setDrawColor(...GOLD); doc.setLineWidth(0.6); doc.line(M, 32.5, W - M, 32.5);
+    doc.setLineWidth(0.2); doc.line(M, 33.7, W - M, 33.7);
+  };
+  const novaPagina = () => { doc.addPage(); cabecalho(); return 46; };
+
+  cabecalho();
+  doc.setFont("helvetica", "bold"); doc.setFontSize(12.5); doc.setTextColor(...NAVY);
+  doc.text(pdfTxt("RELATÓRIO MÉDICO"), W / 2, 45, { align: "center" });
+
+  // faixa do paciente
+  const hoje = new Date();
+  const dataCurta = hoje.toLocaleDateString("pt-BR", { timeZone: TZ });
+  const dataLonga = hoje.toLocaleDateString("pt-BR", { timeZone: TZ, day: "numeric", month: "long", year: "numeric" });
+  doc.setFillColor(247, 244, 236); doc.roundedRect(M, 51, W - 2 * M, 15, 2, 2, "F");
+  doc.setFont("helvetica", "bold"); doc.setFontSize(7.6); doc.setTextColor(...MUTED);
+  doc.text("PACIENTE", M + 4, 56.2, { charSpace: 0.4 });
+  doc.text("DATA", W - M - 32, 56.2, { charSpace: 0.4 });
+  doc.setFont("helvetica", "normal"); doc.setFontSize(11); doc.setTextColor(...INK);
+  doc.text(doc.splitTextToSize(pdfTxt(nomePaciente || "-"), W - 2 * M - 44)[0], M + 4, 62.2);
+  doc.text(dataCurta, W - M - 32, 62.2);
+
+  // corpo
+  let y = 77;
+  doc.setFont("helvetica", "normal"); doc.setFontSize(FS); doc.setTextColor(...INK);
+  let antBullet = false;
+  const linhasTexto = pdfTxt(texto).replace(/\r/g, "").split("\n");
+  for (let bruta of linhasTexto) {
+    let t = bruta.trim();
+    if (!t) continue;
+    t = t.replace(/^#{1,6}\s*/, "").replace(/\*\*(.+?)\*\*/g, "$1").replace(/__(.+?)__/g, "$1");
+    const bullet = /^([-*•]|\d+[.)])\s+/.test(t);
+    let marca = "";
+    if (bullet) { marca = t.match(/^([-*•]|\d+[.)])\s+/)[1]; t = t.replace(/^([-*•]|\d+[.)])\s+/, ""); if (/^[-*•]$/.test(marca)) marca = "•"; }
+    if (!bullet && antBullet) y += 1.8;
+    antBullet = bullet;
+    const x = bullet ? M + 6 : M, larg = W - M - x;
+    doc.setFont("helvetica", "normal"); doc.setFontSize(FS); doc.setTextColor(...INK);
+    const linhas = doc.splitTextToSize(t, larg);
+    let i = 0;
+    while (i < linhas.length) {
+      if (y > LIM) y = novaPagina();
+      doc.setFont("helvetica", "normal"); doc.setFontSize(FS); doc.setTextColor(...INK);
+      const cabem = Math.max(1, Math.floor((LIM - y) / LH) + 1);
+      const parte = linhas.slice(i, i + cabem);
+      if (i === 0 && bullet) { if (marca === "•") { doc.setFillColor(...INK); doc.circle(M + 2.2, y - 1.25, 0.75, "F"); } else doc.text(marca, M + 1, y); }
+      if (!bullet && parte.length > 1) doc.text(parte, x, y, { align: "justify", maxWidth: larg });
+      else doc.text(parte, x, y);
+      y += parte.length * LH; i += parte.length;
+      if (i < linhas.length) y = novaPagina();
+    }
+    y += bullet ? 1.2 : 3;
+  }
+
+  // local, data e assinatura (precisa de ~52 mm livres)
+  if (y + 52 > H - 22) y = novaPagina();
+  y += 4;
+  doc.setFont("helvetica", "normal"); doc.setFontSize(FS); doc.setTextColor(...INK);
+  doc.text(pdfTxt(`Belo Horizonte, ${dataLonga}.`), M, y);
+  y += 30; // espaço para o carimbo visual da assinatura digital
+  doc.setDrawColor(...NAVY); doc.setLineWidth(0.3); doc.line(W / 2 - 38, y, W / 2 + 38, y);
+  doc.setFont("helvetica", "bold"); doc.setFontSize(10.5); doc.setTextColor(...NAVY);
+  doc.text(pdfTxt("Dr. Antônio Penido"), W / 2, y + 5, { align: "center" });
+  doc.setFont("helvetica", "normal"); doc.setFontSize(8.6); doc.setTextColor(...MUTED);
+  doc.text(pdfTxt("Alergista e Imunologista  ·  CRM-MG 59.766  ·  RQE 48.720"), W / 2, y + 9.6, { align: "center" });
+
+  // rodapé em todas as páginas
+  const n = doc.getNumberOfPages();
+  for (let p = 1; p <= n; p++) {
+    doc.setPage(p);
+    doc.setDrawColor(...GOLD); doc.setLineWidth(0.3); doc.line(M, H - 17, W - M, H - 17);
+    doc.setFont("helvetica", "normal"); doc.setFontSize(7.4); doc.setTextColor(...MUTED);
+    doc.text(pdfTxt("Válido com assinatura digital ICP-Brasil (Resolução CFM 2.299/2021) · conferência em validar.iti.gov.br"), M, H - 12.5);
+    doc.text(`Página ${p} de ${n}`, W - M, H - 12.5, { align: "right" });
+  }
+  return doc;
+}
+
+async function baixarPdfRel(id, btn){
+  const d = S.demandas.find(x => x.id === id), st = relEstado(id);
+  if (!d || !st.texto.trim()) { toast("Gere ou escreva o texto do relatório primeiro."); return; }
+  const txt = btn.textContent; btn.disabled = true; btn.textContent = "Montando PDF…";
+  try {
+    const doc = await montarPdfRel(d.nome, st.texto);
+    const blob = doc.output("blob");
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = `Relatorio_${slugArq(d.nome)}_${hojeISO()}.pdf`;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 60000);
+    toast("PDF baixado. Agora assine com o seu certificado e anexe o arquivo assinado.", 5000);
+  } catch (err) {
+    console.error(err);
+    toast("Não foi possível montar o PDF. Verifique a internet e tente de novo.");
+  } finally { btn.disabled = false; btn.textContent = txt; }
+}
 </script>
 </body>
 </html>

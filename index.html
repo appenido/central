@@ -938,7 +938,7 @@ function anexosHTML(d, medico){
   const lista = d.anexos || [];
   const itens = lista.map(a => `<div class="anexo">
       <span aria-hidden="true">📎</span>
-      <span class="an-nome" title="${esc(a.nome)}">${esc(a.nome)}<br><span class="an-info">${tamanhoTxt(a.tamanho)}${a.em?` · ${quando(a.em)}`:""}</span></span>
+      <span class="an-nome" title="${esc(a.nome)}">${esc(a.nome)}<br><span class="an-info">${tamanhoTxt(a.tamanho)}${a.em?` · ${quando(a.em)}`:""}${a.assinado?` · <span style="color:#0e7a5e;font-weight:700">✔ assinado digitalmente</span>`:""}</span></span>
       <button type="button" data-baixar="${esc(a.path)}" data-id="${esc(d.id)}">Baixar</button>
       ${medico?`<button type="button" class="rm" data-remover-anexo="${esc(a.path)}" data-id="${esc(d.id)}">Remover</button>`:""}
     </div>`).join("");
